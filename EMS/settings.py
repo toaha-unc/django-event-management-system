@@ -1,5 +1,6 @@
 from pathlib import Path
 from django.contrib.messages import constants as messages
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -48,16 +49,27 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'EMS.wsgi.application'
 
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ems',
-        'USER': 'postgres',
-        'PASSWORD': 'bondstone',
-        'HOST': 'localhost',
-        'PORT': '5432'
-    }
+    'default': dj_database_url.config(
+        # Replace this value with your local database's connection string.
+        default='postgresql://ems_db_kbhs_user:zoGadPirfa0gg2GBQxIEF6B7Bxj55Lci@dpg-d1unids9c44c73d62cs0-a.oregon-postgres.render.com/ems_db_kbhs',
+        conn_max_age=600
+    )
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'ems',
+#         'USER': 'postgres',
+#         'PASSWORD': 'bondstone',
+#         'HOST': 'localhost',
+#         'PORT': '5432'
+#     }
+# }
+
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
