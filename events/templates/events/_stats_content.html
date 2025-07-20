@@ -1,0 +1,37 @@
+{% if stats_type == 'total' %}
+    <h3 class="text-xl font-semibold mb-2">All Events</h3>
+    <ul>
+        {% for event in all_events %}
+        <li class="mb-2">
+            <a href="{% url 'event_detail' event.pk %}" class="text-blue-600 hover:underline">{{ event.name }}</a>
+            <span class="text-gray-500">({{ event.date }})</span>
+        </li>
+        {% empty %}
+        <li>No events found.</li>
+        {% endfor %}
+    </ul>
+{% elif stats_type == 'upcoming' %}
+    <h3 class="text-xl font-semibold mb-2">Upcoming Events</h3>
+    <ul>
+        {% for event in upcoming_events_list %}
+        <li class="mb-2">
+            <a href="{% url 'event_detail' event.pk %}" class="text-blue-600 hover:underline">{{ event.name }}</a>
+            <span class="text-gray-500">({{ event.date }})</span>
+        </li>
+        {% empty %}
+        <li>No upcoming events.</li>
+        {% endfor %}
+    </ul>
+{% elif stats_type == 'past' %}
+    <h3 class="text-xl font-semibold mb-2">Past Events</h3>
+    <ul>
+        {% for event in past_events_list %}
+        <li class="mb-2">
+            <a href="{% url 'event_detail' event.pk %}" class="text-blue-600 hover:underline">{{ event.name }}</a>
+            <span class="text-gray-500">({{ event.date }})</span>
+        </li>
+        {% empty %}
+        <li>No past events.</li>
+        {% endfor %}
+    </ul>
+{% endif %}

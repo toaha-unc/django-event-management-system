@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Home - Event Management System{% endblock %}
+{% block content %}
+<div class="relative bg-gradient-to-br from-blue-600 to-purple-600 text-white rounded-2xl shadow-lg overflow-hidden mb-12">
+  <div class="px-8 py-20 text-center">
+    <h1 class="text-5xl font-extrabold mb-4 drop-shadow-lg">Attend Your Very Favorite <span class="text-yellow-300">Events</span></h1>
+    <p class="text-xl mb-8">Plan, manage, and enjoy unforgettable events with EMS.</p>
+    <form method="get" action="{% url 'home' %}" class="max-w-xl mx-auto flex rounded-lg overflow-hidden shadow-md bg-white">
+      <input
+        type="text"
+        name="search"
+        value="{{ search_query }}"
+        placeholder="Search events..."
+        class="flex-1 px-4 py-3 text-gray-700 focus:outline-none"
+      />
+      <button
+        type="submit"
+        class="bg-blue-600 text-white px-6 py-3 font-semibold hover:bg-blue-700 transition whitespace-nowrap"
+      >
+        Search
+      </button>
+    </form>
+    
+    <div class="mt-10 flex flex-wrap justify-center gap-6">
+      <a href="{% url 'event_list' %}" class="bg-yellow-300 text-blue-900 px-6 py-2 rounded-full font-bold shadow hover:bg-yellow-400 transition">Browse Events</a>
+      <a href="{% url 'organizer_dashboard' %}" class="bg-blue-50 text-blue-700 px-6 py-2 rounded-full font-bold shadow hover:bg-blue-100 transition">Organizer Dashboard</a>
+    </div>
+  </div>
+</div>
+
+
+{% if search_query %}
+  <h3 class="text-xl text-blue-700 font-semibold mt-10 mb-4 text-center">
+    Search Results for: "{{ search_query }}"
+  </h3>
+{% else %}
+  <h3 class="text-3xl font-bold text-blue-800 text-center mt-12 mb-6">All Events</h3>
+{% endif %}
+
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    {% for event in events %}
+    <div class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition flex flex-col overflow-hidden p-6">
+      <h2 class="text-2xl font-bold text-blue-700 mb-2">
+        <a href="{% url 'event_detail' event.pk %}" class="hover:underline">{{ event.name }}</a>
+      </h2>
+
+      <div class="flex items-center text-gray-500 text-sm mb-3 gap-4">
+        <div class="inline-flex items-center gap-1">
+          <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <span>{{ event.date }}</span>
+        </div>
+        <div class="inline-flex items-center gap-1">
+          <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>{{ event.time }}</span>
+        </div>
+      </div>
+
+      <p class="text-gray-600 mb-2"><span class="font-medium text-gray-700">Venue:</span><br>{{ event.location }}</p>
+      <p class="text-gray-600 mb-2"><span class="font-medium text-gray-700">Category:</span> {{ event.category.name }}</p>
+      <p class="text-gray-700 mb-4">{{ event.description }}</p>
+      <p class="text-blue-700 font-semibold mb-2">
+        Participants:
+        {% if event.participants.all %}
+          {% for participant in event.participants.all %}
+            {{ participant.name }}{% if not forloop.last %}, {% endif %}
+          {% endfor %}
+        {% else %}
+          <span class="text-gray-500">No participants yet</span>
+        {% endif %}
+      </p>
+    </div>
+    {% empty %}
+    <p class="col-span-full text-center text-gray-300">No events found.</p>
+    {% endfor %}
+</div>
+
+
+{% endblock %}
