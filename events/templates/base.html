@@ -1,93 +1,97 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Event Management System{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/dist/styles.css' %}">    
+    <title>{% block title %}Event Management System{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{% static 'css/input.css' %}">
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-purple-100 min-h-screen">
-
-    {% if messages %}
-    <div class="container mx-auto px-4 pt-4">
-        {% for message in messages %}
-        <div class="mb-4 p-4 rounded-lg shadow text-xl bg-indigo-100 text-blue-500">
-            {{ message }}
+<body class="bg-gray-100 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <!-- Brand and Navigation Links -->
+                <div class="flex items-center space-x-8">
+                    <div class="flex-shrink-0">
+                        <a href="{% url 'home' %}" class="text-xl font-bold text-blue-600 ems-brand">EMS</a>
+                    </div>
+                    <div class="hidden sm:flex sm:space-x-8">
+                        <a href="{% url 'home' %}" class="text-gray-700 hover:text-blue-600 font-medium">Home</a>
+                        <a href="{% url 'event_list' %}" class="text-gray-700 hover:text-blue-600 font-medium">Events</a>
+                        <a href="{% url 'category_list' %}" class="text-gray-700 hover:text-blue-600 font-medium">Categories</a>
+                        {% if user.is_authenticated and user.groups.all.0.name == 'Admin' %}
+                        <a href="{% url 'user_list' %}" class="text-gray-700 hover:text-blue-600 font-medium">Users</a>
+                        {% endif %}
+                        {% if user.is_authenticated and user.groups.all.0.name == 'Admin' or user.groups.all.0.name == 'Organizer' %}
+                        <a href="{% url 'organizer_dashboard' %}" class="text-gray-700 hover:text-blue-600 font-medium">Dashboard</a>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Authentication Links -->
+                <div class="hidden sm:flex sm:items-center">
+                    {% if user.is_authenticated %}
+                        <div class="flex items-center space-x-4">
+                            <span class="text-gray-700">Welcome, {{ user.username }}</span>
+                            <a href="{% url 'accounts:profile' %}" class="text-gray-700 hover:text-blue-600">Profile</a>
+                            <a href="{% url 'accounts:logout' %}" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700">Logout</a>
+                        </div>
+                    {% else %}
+                        <div class="flex items-center space-x-4">
+                            <a href="{% url 'accounts:login' %}" class="text-gray-700 hover:text-blue-600">Login</a>
+                            <a href="{% url 'accounts:signup' %}" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Sign Up</a>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Mobile menu button -->
+                <div class="sm:hidden flex items-center">
+                    <button type="button" class="text-gray-700 hover:text-blue-600" onclick="toggleMobileMenu()">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
         </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-
-    <nav class="bg-white shadow sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-            <a href="{% url 'home' %}" class="text-2xl font-extrabold text-blue-700 tracking-tight transition duration-200 hover:scale-105">EMS</a>
-            <button class="md:hidden block text-gray-700 focus:outline-none" id="nav-toggle">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M4 6h16M4 12h16M4 18h16"></path>
-                </svg>
-            </button>
-            <div class="space-x-4 hidden md:flex items-center" id="nav-menu">
-                <a href="{% url 'home' %}" class="text-gray-700 hover:text-blue-600 font-medium">Home</a>
-                <a href="{% url 'event_list' %}" class="text-gray-700 hover:text-blue-600 font-medium">Events</a>
-                
-                {% if active_page == 'dashboard' %}
-                    <a href="{% url 'participant_list' %}" class="text-gray-700 hover:text-blue-600 font-medium">Participants</a>
-                    <a href="{% url 'category_list' %}" class="text-gray-700 hover:text-blue-600 font-medium">Categories</a>
+        <!-- Mobile menu -->
+        <div class="sm:hidden hidden" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="{% url 'home' %}" class="block py-2 text-gray-700 hover:text-blue-600 font-medium">Home</a>
+                <a href="{% url 'event_list' %}" class="block py-2 text-gray-700 hover:text-blue-600 font-medium">Events</a>
+                <a href="{% url 'category_list' %}" class="block py-2 text-gray-700 hover:text-blue-600 font-medium">Categories</a>
+                {% if user.is_authenticated and user.groups.all.0.name == 'Admin' %}
+                <a href="{% url 'user_list' %}" class="block py-2 text-gray-700 hover:text-blue-600 font-medium">Users</a>
                 {% endif %}
-
-                <a href="{% url 'organizer_dashboard' %}" class="text-gray-700 hover:text-blue-600 font-medium">Organizer Dashboard</a>
-                
-                {% if user.is_authenticated %}
-                    <span class="text-gray-600">Welcome, {{ user.first_name|default:user.username }}</span>
-                    <a href="{% url 'accounts:profile' %}" class="text-gray-700 hover:text-blue-600 font-medium">Profile</a>
-                    <a href="{% url 'accounts:logout' %}" class="text-red-600 hover:text-red-700 font-medium">Logout</a>
-                {% else %}
-                    <a href="{% url 'accounts:login' %}" class="text-gray-700 hover:text-blue-600 font-medium">Login</a>
-                    <a href="{% url 'accounts:signup' %}" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 font-medium">Sign Up</a>
+                {% if user.is_authenticated and user.groups.all.0.name == 'Admin' or user.groups.all.0.name == 'Organizer' %}
+                <a href="{% url 'organizer_dashboard' %}" class="block py-2 text-gray-700 hover:text-blue-600 font-medium">Dashboard</a>
                 {% endif %}
             </div>
         </div>
-
-        <div class="md:hidden px-4 pb-4 hidden" id="mobile-menu">
-            <a href="{% url 'home' %}" class="block py-2 text-gray-700 hover:text-blue-600 font-medium">Home</a>
-            <a href="{% url 'event_list' %}" class="block py-2 text-gray-700 hover:text-blue-600 font-medium">Events</a>
-
-            {% if active_page == 'dashboard' %}
-                <a href="{% url 'participant_list' %}" class="block py-2 text-gray-700 hover:text-blue-600 font-medium">Participants</a>
-                <a href="{% url 'category_list' %}" class="block py-2 text-gray-700 hover:text-blue-600 font-medium">Categories</a>
-            {% endif %}
-
-            <a href="{% url 'organizer_dashboard' %}" class="block py-2 text-gray-700 hover:text-blue-600 font-medium">Organizer Dashboard</a>
-            
-            {% if user.is_authenticated %}
-                <div class="border-t border-gray-200 pt-4 mt-4">
-                    <div class="text-gray-600 text-sm mb-2">Welcome, {{ user.first_name|default:user.username }}</div>
-                    <a href="{% url 'accounts:profile' %}" class="block py-2 text-gray-700 hover:text-blue-600 font-medium">Profile</a>
-                    <a href="{% url 'accounts:logout' %}" class="block py-2 text-red-600 hover:text-red-700 font-medium">Logout</a>
-                </div>
-            {% else %}
-                <div class="border-t border-gray-200 pt-4 mt-4">
-                    <a href="{% url 'accounts:login' %}" class="block py-2 text-gray-700 hover:text-blue-600 font-medium">Login</a>
-                    <a href="{% url 'accounts:signup' %}" class="block py-2 text-blue-600 hover:text-blue-700 font-medium">Sign Up</a>
-                </div>
-            {% endif %}
-        </div>
     </nav>
 
-    <main class="container mx-auto px-4 py-8 max-w-7xl">
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="p-4 rounded-md {% if message.tags == 'error' %}bg-red-100 text-red-700{% elif message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-blue-100 text-blue-700{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
         {% block content %}{% endblock %}
     </main>
 
     <script>
-
-        const navToggle = document.getElementById('nav-toggle');
-        const mobileMenu = document.getElementById('mobile-menu');
-        if (navToggle) {
-            navToggle.addEventListener('click', () => {
-                mobileMenu.classList.toggle('hidden');
-            });
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
         }
     </script>
 </body>

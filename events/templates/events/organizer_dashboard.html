@@ -23,6 +23,24 @@
         </div>
     </div>
 
+    <!-- Quick Actions -->
+    <div class="bg-white rounded-xl shadow p-8 mb-8">
+        <h3 class="text-2xl font-bold mb-4 text-blue-700">Quick Actions</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <a href="{% url 'event_create' %}" class="bg-blue-100 text-blue-700 px-6 py-3 rounded-lg font-semibold hover:bg-blue-200 transition text-center">
+                Create Event
+            </a>
+            <a href="{% url 'category_create' %}" class="bg-green-100 text-green-700 px-6 py-3 rounded-lg font-semibold hover:bg-green-200 transition text-center">
+                Create Category
+            </a>
+            {% if user.groups.all.0.name == 'Admin' %}
+            <a href="{% url 'user_list' %}" class="bg-purple-100 text-purple-700 px-6 py-3 rounded-lg font-semibold hover:bg-purple-200 transition text-center">
+                Manage Users
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
     <div id="stats-content" class="bg-white rounded-xl shadow p-8">
         <h3 class="text-2xl font-bold mb-4 text-blue-700">Today's Events</h3>
         <ul class="space-y-2">

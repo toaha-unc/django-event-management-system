@@ -2,8 +2,9 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from .forms import UserSignUpForm, UserLoginForm
+from events.models import UserProfile
 
 def signup_view(request):
     if request.user.is_authenticated:
@@ -12,12 +13,25 @@ def signup_view(request):
     if request.method == 'POST':
         form = UserSignUpForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
-            messages.success(request, 'Account created successfully! Welcome to Event Management System.')
-            return redirect('home')
+            try:
+                user = form.save()
+                
+                # Assign to Participant group by default
+                participant_group, created = Group.objects.get_or_create(name='Participant')
+                user.groups.add(participant_group)
+                
+                # Create user profile
+                UserProfile.objects.create(user=user)
+                
+                login(request, user)
+                messages.success(request, 'Account created successfully! Welcome to Event Management System.')
+                return redirect('home')
+            except Exception as e:
+                messages.error(request, f'Error creating account: {str(e)}')
         else:
             messages.error(request, 'Please correct the errors below.')
+            # Print form errors for debugging
+            print("Form errors:", form.errors)
     else:
         form = UserSignUpForm()
     

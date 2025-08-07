@@ -6,9 +6,14 @@ from django.utils import timezone
 from django.template.loader import render_to_string
 from django.http import HttpResponse
 from functools import wraps
+from django.contrib.auth.models import User, Group
 
-from .models import Event, Participant, Category
-from .forms import EventForm, ParticipantForm, CategoryForm
+from .models import Event, Category, UserProfile, EventRegistration
+from .forms import EventForm, CategoryForm
+from accounts.decorators import (
+    admin_required, organizer_required, admin_or_organizer_required,
+    participant_required, any_authenticated_user
+)
 
 def render_dashboard(request, template, context):
     if request.session.get('from_dashboard'):
@@ -27,7 +32,7 @@ def dashboard_only(view_func):
 def home(request):
     request.session.pop('from_dashboard', None)  # Exit dashboard mode
     query = request.GET.get('search', '')
-    events = Event.objects.select_related('category').prefetch_related('participants')
+    events = Event.objects.select_related('category').prefetch_related('registrations')
     if query:
         events = events.filter(Q(name__icontains=query) | Q(location__icontains=query))
     return render(request, 'events/home.html', {
@@ -35,7 +40,7 @@ def home(request):
         'search_query': query
     })
 
-@login_required
+@admin_or_organizer_required
 def organizer_dashboard(request):
     request.session['from_dashboard'] = True
     today = timezone.now().date()
@@ -44,7 +49,7 @@ def organizer_dashboard(request):
         'total_events': all_events.count(),
         'upcoming_events': all_events.filter(date__gt=today).count(),
         'past_events': all_events.filter(date__lt=today).count(),
-        'total_participants': Participant.objects.distinct().count(),
+        'total_participants': User.objects.filter(groups__name='Participant').count(),
         'todays_events': all_events.filter(date=today),
     }
 
@@ -61,7 +66,7 @@ def organizer_dashboard(request):
     return render_dashboard(request, 'events/organizer_dashboard.html', context)
 
 def event_list(request):
-    events = Event.objects.select_related('category').prefetch_related('participants').all()
+    events = Event.objects.select_related('category').prefetch_related('registrations').all()
     category_id = request.GET.get('category')
     if category_id:
         events = events.filter(category_id=category_id)
@@ -75,7 +80,7 @@ def event_list(request):
     elif end_date:
         events = events.filter(date__lte=end_date)
 
-    total_participants = Participant.objects.filter(events__in=events).distinct().count()
+    total_participants = User.objects.filter(groups__name='Participant').count()
     categories = Category.objects.all()
 
     context = {
@@ -91,17 +96,19 @@ def event_list(request):
         return render_dashboard(request, 'events/event_list.html', context)
     return render(request, 'events/event_list.html', context)
 
-@login_required
+@admin_or_organizer_required
 @dashboard_only
 def event_create(request):
     form = EventForm(request.POST or None)
     if form.is_valid():
-        form.save()
+        event = form.save(commit=False)
+        event.created_by = request.user
+        event.save()
         messages.success(request, "Event created successfully!")
         return redirect('event_list')
     return render_dashboard(request, 'events/event_form.html', {'form': form})
 
-@login_required
+@admin_or_organizer_required
 @dashboard_only
 def event_update(request, pk):
     event = get_object_or_404(Event, pk=pk)
@@ -112,7 +119,7 @@ def event_update(request, pk):
         return redirect('event_list')
     return render_dashboard(request, 'events/event_form.html', {'form': form})
 
-@login_required
+@admin_or_organizer_required
 @dashboard_only
 def event_delete(request, pk):
     event = get_object_or_404(Event, pk=pk)
@@ -123,51 +130,61 @@ def event_delete(request, pk):
     return render_dashboard(request, 'events/event_confirm_delete.html', {'event': event})
 
 def event_detail(request, pk):
-    event = get_object_or_404(Event.objects.select_related('category').prefetch_related('participants'), pk=pk)
+    event = get_object_or_404(Event.objects.select_related('category').prefetch_related('registrations'), pk=pk)
     context = {'event': event}
     if request.session.get('from_dashboard'):
         return render_dashboard(request, 'events/event_detail.html', context)
     return render(request, 'events/event_detail.html', context)
 
-def participant_list(request):
-    context = {'participants': Participant.objects.all()}
+@admin_required
+def user_list(request):
+    participants = User.objects.filter(groups__name='Participant')
+    organizers = User.objects.filter(groups__name='Organizer')
+    admins = User.objects.filter(groups__name='Admin')
+    
+    context = {
+        'participants': participants,
+        'organizers': organizers,
+        'admins': admins,
+    }
     if request.session.get('from_dashboard'):
-        return render_dashboard(request, 'events/participant_list.html', context)
-    return render(request, 'events/participant_list.html', context)
+        return render_dashboard(request, 'events/user_list.html', context)
+    return render(request, 'events/user_list.html', context)
 
-@login_required
+@admin_required
 @dashboard_only
-def participant_create(request):
-    if not Event.objects.exists():
-        messages.error(request, "Cannot add participant because there are no events available.")
-        return redirect('event_list')
-    form = ParticipantForm(request.POST or None)
-    if form.is_valid():
-        form.save()
-        messages.success(request, "Participant added successfully!")
-        return redirect('participant_list')
-    return render_dashboard(request, 'events/participant_form.html', {'form': form})
-
-@login_required
-@dashboard_only
-def participant_update(request, pk):
-    participant = get_object_or_404(Participant, pk=pk)
-    form = ParticipantForm(request.POST or None, instance=participant)
-    if form.is_valid():
-        form.save()
-        messages.success(request, "Participant updated successfully!")
-        return redirect('participant_list')
-    return render_dashboard(request, 'events/participant_form.html', {'form': form})
-
-@login_required
-@dashboard_only
-def participant_delete(request, pk):
-    participant = get_object_or_404(Participant, pk=pk)
+def user_delete(request, pk):
+    user = get_object_or_404(User, pk=pk)
     if request.method == 'POST':
-        participant.delete()
-        messages.success(request, "Participant deleted successfully!")
-        return redirect('participant_list')
-    return render_dashboard(request, 'events/participant_confirm_delete.html', {'participant': participant})
+        user.delete()
+        messages.success(request, "User deleted successfully!")
+        return redirect('user_list')
+    return render_dashboard(request, 'events/user_confirm_delete.html', {'user': user})
+
+@admin_required
+@dashboard_only
+def user_role_update(request, pk):
+    user = get_object_or_404(User, pk=pk)
+    if request.method == 'POST':
+        new_role = request.POST.get('role')
+        if new_role in ['Admin', 'Organizer', 'Participant']:
+            # Remove from all groups
+            user.groups.clear()
+            # Add to new group
+            group, created = Group.objects.get_or_create(name=new_role)
+            user.groups.add(group)
+            messages.success(request, f"User role updated to {new_role} successfully!")
+        else:
+            messages.error(request, "Invalid role selected.")
+        return redirect('user_list')
+    
+    current_role = user.groups.first().name if user.groups.exists() else 'No Role'
+    context = {
+        'user': user,
+        'current_role': current_role,
+        'available_roles': ['Admin', 'Organizer', 'Participant']
+    }
+    return render_dashboard(request, 'events/user_role_form.html', context)
 
 def category_list(request):
     context = {'categories': Category.objects.all()}
@@ -175,7 +192,7 @@ def category_list(request):
         return render_dashboard(request, 'events/category_list.html', context)
     return render(request, 'events/category_list.html', context)
 
-@login_required
+@admin_or_organizer_required
 @dashboard_only
 def category_create(request):
     form = CategoryForm(request.POST or None)
@@ -185,7 +202,7 @@ def category_create(request):
         return redirect('category_list')
     return render_dashboard(request, 'events/category_form.html', {'form': form})
 
-@login_required
+@admin_or_organizer_required
 @dashboard_only
 def category_update(request, pk):
     category = get_object_or_404(Category, pk=pk)
@@ -196,7 +213,7 @@ def category_update(request, pk):
         return redirect('category_list')
     return render_dashboard(request, 'events/category_form.html', {'form': form})
 
-@login_required
+@admin_or_organizer_required
 @dashboard_only
 def category_delete(request, pk):
     category = get_object_or_404(Category, pk=pk)
@@ -205,3 +222,33 @@ def category_delete(request, pk):
         messages.success(request, "Category deleted successfully!")
         return redirect('category_list')
     return render_dashboard(request, 'events/category_confirm_delete.html', {'category': category})
+
+@any_authenticated_user
+def register_for_event(request, event_pk):
+    event = get_object_or_404(Event, pk=event_pk)
+    if request.method == 'POST':
+        registration, created = EventRegistration.objects.get_or_create(
+            user=request.user,
+            event=event
+        )
+        if created:
+            messages.success(request, f"Successfully registered for {event.name}!")
+        else:
+            messages.info(request, f"You are already registered for {event.name}.")
+        return redirect('event_detail', pk=event_pk)
+    
+    return redirect('event_detail', pk=event_pk)
+
+@any_authenticated_user
+def unregister_from_event(request, event_pk):
+    event = get_object_or_404(Event, pk=event_pk)
+    if request.method == 'POST':
+        try:
+            registration = EventRegistration.objects.get(user=request.user, event=event)
+            registration.delete()
+            messages.success(request, f"Successfully unregistered from {event.name}!")
+        except EventRegistration.DoesNotExist:
+            messages.error(request, f"You are not registered for {event.name}.")
+        return redirect('event_detail', pk=event_pk)
+    
+    return redirect('event_detail', pk=event_pk)

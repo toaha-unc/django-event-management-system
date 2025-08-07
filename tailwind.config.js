@@ -15,6 +15,11 @@ module.exports = {
     'py-2',
     'focus:outline-none',
     'focus:border-blue-500',
+    'transform',
+    'hover:scale-110',
+    'transition-all',
+    'duration-200',
+    'hover:text-blue-700',
   ],
   theme: {
     extend: {},

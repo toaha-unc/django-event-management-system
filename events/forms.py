@@ -1,5 +1,5 @@
 from django import forms
-from .models import Event, Participant, Category
+from .models import Event, Category, UserProfile
 
 tailwind_input_class = (
     'w-full px-3 py-2 border border-gray-300 rounded-sm '
@@ -36,18 +36,12 @@ class EventForm(forms.ModelForm):
             'category': forms.Select(attrs={'class': tailwind_input_class}),
         }
 
-class ParticipantForm(forms.ModelForm):
+class UserProfileForm(forms.ModelForm):
     class Meta:
-        model = Participant
-        fields = ['name', 'email', 'events']
+        model = UserProfile
+        fields = ['phone', 'address', 'bio']
         widgets = {
-            'name': forms.TextInput(attrs={'class': tailwind_input_class}),
-            'email': forms.EmailInput(attrs={'class': tailwind_input_class}),
-            'events': forms.CheckboxSelectMultiple(attrs={'class': 'space-y-2'})
+            'phone': forms.TextInput(attrs={'class': tailwind_input_class}),
+            'address': forms.Textarea(attrs={'class': tailwind_input_class}),
+            'bio': forms.Textarea(attrs={'class': tailwind_input_class}),
         }
-
-    def clean_events(self):
-        events = self.cleaned_data.get('events')
-        if not events or events.count() == 0:
-            raise forms.ValidationError("You must select at least one event.")
-        return events
