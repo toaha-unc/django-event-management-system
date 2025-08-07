@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile - Event Management System{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white shadow-lg overflow-hidden rounded-2xl border border-gray-100">
+            <div class="px-4 py-5 sm:px-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    User Profile
+                </h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                    Personal details and account information.
+                </p>
+            </div>
+            <div class="border-t border-gray-100">
+                <dl class="divide-y divide-gray-100">
+                    <div class="bg-gray-50/50 px-6 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
+                        <dt class="text-sm font-semibold text-gray-600">
+                            Full name
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {{ user.get_full_name|default:"Not provided" }}
+                        </dd>
+                    </div>
+                    <div class="bg-white px-6 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
+                        <dt class="text-sm font-semibold text-gray-600">
+                            Username
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {{ user.username }}
+                        </dd>
+                    </div>
+                    <div class="bg-gray-50/50 px-6 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
+                        <dt class="text-sm font-semibold text-gray-600">
+                            Email address
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {{ user.email|default:"Not provided" }}
+                        </dd>
+                    </div>
+                    <div class="bg-white px-6 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
+                        <dt class="text-sm font-semibold text-gray-600">
+                            First name
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {{ user.first_name|default:"Not provided" }}
+                        </dd>
+                    </div>
+                    <div class="bg-gray-50/50 px-6 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
+                        <dt class="text-sm font-semibold text-gray-600">
+                            Last name
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {{ user.last_name|default:"Not provided" }}
+                        </dd>
+                    </div>
+                    <div class="bg-white px-6 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
+                        <dt class="text-sm font-semibold text-gray-600">
+                            Date joined
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {{ user.date_joined|date:"F j, Y" }}
+                        </dd>
+                    </div>
+                    <div class="bg-gray-50/50 px-6 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
+                        <dt class="text-sm font-semibold text-gray-600">
+                            Last login
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {{ user.last_login|date:"F j, Y, g:i a"|default:"Never" }}
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+
+        <div class="mt-8 flex justify-center space-x-4">
+            <a href="{% url 'home' %}" class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-xl shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                Back to Home
+            </a>
+            <a href="{% url 'accounts:logout' %}" class="inline-flex items-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
+                Sign Out
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

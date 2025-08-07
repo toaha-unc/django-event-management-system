@@ -28,7 +28,7 @@
                           d="M4 6h16M4 12h16M4 18h16"></path>
                 </svg>
             </button>
-            <div class="space-x-4 hidden md:flex" id="nav-menu">
+            <div class="space-x-4 hidden md:flex items-center" id="nav-menu">
                 <a href="{% url 'home' %}" class="text-gray-700 hover:text-blue-600 font-medium">Home</a>
                 <a href="{% url 'event_list' %}" class="text-gray-700 hover:text-blue-600 font-medium">Events</a>
                 
@@ -38,6 +38,15 @@
                 {% endif %}
 
                 <a href="{% url 'organizer_dashboard' %}" class="text-gray-700 hover:text-blue-600 font-medium">Organizer Dashboard</a>
+                
+                {% if user.is_authenticated %}
+                    <span class="text-gray-600">Welcome, {{ user.first_name|default:user.username }}</span>
+                    <a href="{% url 'accounts:profile' %}" class="text-gray-700 hover:text-blue-600 font-medium">Profile</a>
+                    <a href="{% url 'accounts:logout' %}" class="text-red-600 hover:text-red-700 font-medium">Logout</a>
+                {% else %}
+                    <a href="{% url 'accounts:login' %}" class="text-gray-700 hover:text-blue-600 font-medium">Login</a>
+                    <a href="{% url 'accounts:signup' %}" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 font-medium">Sign Up</a>
+                {% endif %}
             </div>
         </div>
 
@@ -51,6 +60,19 @@
             {% endif %}
 
             <a href="{% url 'organizer_dashboard' %}" class="block py-2 text-gray-700 hover:text-blue-600 font-medium">Organizer Dashboard</a>
+            
+            {% if user.is_authenticated %}
+                <div class="border-t border-gray-200 pt-4 mt-4">
+                    <div class="text-gray-600 text-sm mb-2">Welcome, {{ user.first_name|default:user.username }}</div>
+                    <a href="{% url 'accounts:profile' %}" class="block py-2 text-gray-700 hover:text-blue-600 font-medium">Profile</a>
+                    <a href="{% url 'accounts:logout' %}" class="block py-2 text-red-600 hover:text-red-700 font-medium">Logout</a>
+                </div>
+            {% else %}
+                <div class="border-t border-gray-200 pt-4 mt-4">
+                    <a href="{% url 'accounts:login' %}" class="block py-2 text-gray-700 hover:text-blue-600 font-medium">Login</a>
+                    <a href="{% url 'accounts:signup' %}" class="block py-2 text-blue-600 hover:text-blue-700 font-medium">Sign Up</a>
+                </div>
+            {% endif %}
         </div>
     </nav>
 

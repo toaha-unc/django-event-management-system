@@ -17,6 +17,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'events',
+    'accounts',
     'tailwind',
 ]
 
@@ -50,24 +51,24 @@ TEMPLATES = [
 WSGI_APPLICATION = 'EMS.wsgi.application'
 
 
-DATABASES = {
-    'default': dj_database_url.config(
-        # Replace this value with your local database's connection string.
-        default='postgresql://ems_db_24yx_user:3DLvWcEV8aTyUZfUN2iI6zYSQBMacZFj@dpg-d2adrlngi27c73f71jug-a.oregon-postgres.render.com/ems_db_24yx',
-        conn_max_age=600
-    )
-}
-
 # DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'ems',
-#         'USER': 'postgres',
-#         'PASSWORD': 'bondstone',
-#         'HOST': 'localhost',
-#         'PORT': '5432'
-#     }
+#     'default': dj_database_url.config(
+#         # Replace this value with your local database's connection string.
+#         default='postgresql://ems_db_24yx_user:3DLvWcEV8aTyUZfUN2iI6zYSQBMacZFj@dpg-d2adrlngi27c73f71jug-a.oregon-postgres.render.com/ems_db_24yx',
+#         conn_max_age=600
+#     )
 # }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'ems',
+        'USER': 'postgres',
+        'PASSWORD': 'bondstone',
+        'HOST': 'localhost',
+        'PORT': '5432'
+    }
+}
 
 
 
@@ -87,7 +88,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Dhaka'  # Bangladesh Time (BDT)
 USE_I18N = True
 USE_TZ = True
 
@@ -108,3 +109,8 @@ MESSAGE_TAGS = {
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Authentication settings
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'

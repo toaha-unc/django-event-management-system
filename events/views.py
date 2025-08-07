@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Count
 from django.utils import timezone
 from django.template.loader import render_to_string
@@ -34,6 +35,7 @@ def home(request):
         'search_query': query
     })
 
+@login_required
 def organizer_dashboard(request):
     request.session['from_dashboard'] = True
     today = timezone.now().date()
@@ -89,6 +91,7 @@ def event_list(request):
         return render_dashboard(request, 'events/event_list.html', context)
     return render(request, 'events/event_list.html', context)
 
+@login_required
 @dashboard_only
 def event_create(request):
     form = EventForm(request.POST or None)
@@ -98,6 +101,7 @@ def event_create(request):
         return redirect('event_list')
     return render_dashboard(request, 'events/event_form.html', {'form': form})
 
+@login_required
 @dashboard_only
 def event_update(request, pk):
     event = get_object_or_404(Event, pk=pk)
@@ -108,6 +112,7 @@ def event_update(request, pk):
         return redirect('event_list')
     return render_dashboard(request, 'events/event_form.html', {'form': form})
 
+@login_required
 @dashboard_only
 def event_delete(request, pk):
     event = get_object_or_404(Event, pk=pk)
@@ -130,6 +135,7 @@ def participant_list(request):
         return render_dashboard(request, 'events/participant_list.html', context)
     return render(request, 'events/participant_list.html', context)
 
+@login_required
 @dashboard_only
 def participant_create(request):
     if not Event.objects.exists():
@@ -142,6 +148,7 @@ def participant_create(request):
         return redirect('participant_list')
     return render_dashboard(request, 'events/participant_form.html', {'form': form})
 
+@login_required
 @dashboard_only
 def participant_update(request, pk):
     participant = get_object_or_404(Participant, pk=pk)
@@ -152,6 +159,7 @@ def participant_update(request, pk):
         return redirect('participant_list')
     return render_dashboard(request, 'events/participant_form.html', {'form': form})
 
+@login_required
 @dashboard_only
 def participant_delete(request, pk):
     participant = get_object_or_404(Participant, pk=pk)
@@ -167,6 +175,7 @@ def category_list(request):
         return render_dashboard(request, 'events/category_list.html', context)
     return render(request, 'events/category_list.html', context)
 
+@login_required
 @dashboard_only
 def category_create(request):
     form = CategoryForm(request.POST or None)
@@ -176,6 +185,7 @@ def category_create(request):
         return redirect('category_list')
     return render_dashboard(request, 'events/category_form.html', {'form': form})
 
+@login_required
 @dashboard_only
 def category_update(request, pk):
     category = get_object_or_404(Category, pk=pk)
@@ -186,6 +196,7 @@ def category_update(request, pk):
         return redirect('category_list')
     return render_dashboard(request, 'events/category_form.html', {'form': form})
 
+@login_required
 @dashboard_only
 def category_delete(request, pk):
     category = get_object_or_404(Category, pk=pk)
