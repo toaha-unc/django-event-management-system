@@ -53,7 +53,7 @@ WSGI_APPLICATION = 'EMS.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(
         # Replace this value with your local database's connection string.
-        default='postgresql://ems_db_kbhs_user:zoGadPirfa0gg2GBQxIEF6B7Bxj55Lci@dpg-d1unids9c44c73d62cs0-a.oregon-postgres.render.com/ems_db_kbhs',
+        default='postgresql://ems_db_24yx_user:3DLvWcEV8aTyUZfUN2iI6zYSQBMacZFj@dpg-d2adrlngi27c73f71jug-a.oregon-postgres.render.com/ems_db_24yx',
         conn_max_age=600
     )
 }
