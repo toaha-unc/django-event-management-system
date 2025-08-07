@@ -13,7 +13,7 @@ def role_required(allowed_roles):
         @wraps(view_func)
         def _wrapped_view(request, *args, **kwargs):
             if not request.user.is_authenticated:
-                return redirect('login')
+                return redirect('accounts:login')
             
             # Check if user belongs to any of the allowed groups
             user_groups = request.user.groups.all()

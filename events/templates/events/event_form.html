@@ -14,7 +14,7 @@
         </div>
     {% endif %}
 
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
 
 
@@ -63,7 +63,7 @@
         </div>
 
 
-        <div class="mb-6">
+        <div class="mb-4">
             <label for="id_category" class="block font-semibold mb-1">Category:</label>
             {{ form.category }}
             {% if form.category.errors %}
@@ -71,6 +71,20 @@
             {% endif %}
         </div>
 
+        <div class="mb-6">
+            <label for="id_image" class="block font-semibold mb-1">Event Image:</label>
+            {{ form.image }}
+            {% if form.image.errors %}
+                <p class="text-red-600 text-sm">{{ form.image.errors.0 }}</p>
+            {% endif %}
+            <p class="text-gray-500 text-sm mt-1">Optional: Upload an image for the event (JPG, PNG, SVG)</p>
+            {% if form.instance.image %}
+                <div class="mt-2">
+                    <p class="text-sm text-gray-600">Current image:</p>
+                    <img src="{{ form.instance.image.url }}" alt="Current event image" class="w-32 h-24 object-cover border rounded mt-1">
+                </div>
+            {% endif %}
+        </div>
 
         <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded shadow hover:bg-blue-700">
             Save

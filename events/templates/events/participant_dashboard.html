@@ -23,7 +23,7 @@
         {% if upcoming_rsvps %}
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {% for rsvp in upcoming_rsvps %}
-                <div class="border border-gray-200 rounded-lg p-6 hover:shadow-md transition">
+                <div class="border border-gray-200 rounded-lg p-6 hover:shadow-md transition flex flex-col h-full">
                     <div class="mb-4">
                         <h4 class="text-lg font-semibold text-gray-900">
                             <a href="{% url 'event_detail' rsvp.event.pk %}" class="hover:text-blue-600">
@@ -32,7 +32,7 @@
                         </h4>
                     </div>
                     
-                    <div class="space-y-2 text-sm text-gray-600 mb-4">
+                    <div class="space-y-2 text-sm text-gray-600 mb-4 flex-grow">
                         <div class="flex items-center">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -54,13 +54,13 @@
                         </div>
                     </div>
                     
-                    <div class="flex space-x-2">
+                    <div class="flex gap-2 mt-auto">
                         <a href="{% url 'rsvp_create' rsvp.event.pk %}" 
-                           class="flex-1 bg-blue-600 text-white px-4 py-2 rounded text-sm text-center hover:bg-blue-700 transition">
+                           class="flex-1 bg-blue-600 text-white px-3 py-2 rounded text-sm text-center hover:bg-blue-700 transition font-medium">
                             Update RSVP
                         </a>
                         <a href="{% url 'rsvp_delete' rsvp.event.pk %}" 
-                           class="bg-red-600 text-white px-4 py-2 rounded text-sm hover:bg-red-700 transition">
+                           class="bg-red-600 text-white px-3 py-2 rounded text-sm hover:bg-red-700 transition font-medium whitespace-nowrap">
                             Remove
                         </a>
                     </div>

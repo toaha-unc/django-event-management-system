@@ -21,6 +21,7 @@ class Event(models.Model):
     time = models.TimeField()
     location = models.CharField(max_length=255)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='events')
+    image = models.ImageField(upload_to='events/', default='events/defaults/default_event.svg', blank=True, null=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_events', null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
@@ -38,6 +39,11 @@ class Event(models.Model):
     def get_rsvp_count(self):
         """Get the number of attending RSVPs for this event"""
         return self.rsvp_set.count()
+    
+    def get_absolute_url(self):
+        """Get the absolute URL for this event"""
+        from django.urls import reverse
+        return reverse('event_detail', kwargs={'pk': self.pk})
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')

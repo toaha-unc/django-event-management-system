@@ -129,10 +129,9 @@ def event_list(request):
     return render(request, 'events/event_list.html', context)
 
 @admin_or_organizer_required
-@dashboard_only
 def event_create(request):
     if request.method == 'POST':
-        form = EventForm(request.POST)
+        form = EventForm(request.POST, request.FILES)
         if form.is_valid():
             event = form.save(commit=False)
             event.created_by = request.user
@@ -142,14 +141,18 @@ def event_create(request):
     else:
         form = EventForm()
     
-    return render_dashboard(request, 'events/event_form.html', {'form': form, 'title': 'Create Event'})
+    # Set active_page for consistent styling
+    context = {'form': form, 'title': 'Create Event'}
+    if request.session.get('from_dashboard'):
+        context['active_page'] = 'dashboard'
+    
+    return render(request, 'events/event_form.html', context)
 
 @admin_or_organizer_required
-@dashboard_only
 def event_update(request, pk):
     event = get_object_or_404(Event, pk=pk)
     if request.method == 'POST':
-        form = EventForm(request.POST, instance=event)
+        form = EventForm(request.POST, request.FILES, instance=event)
         if form.is_valid():
             form.save()
             messages.success(request, 'Event updated successfully!')
@@ -157,10 +160,14 @@ def event_update(request, pk):
     else:
         form = EventForm(instance=event)
     
-    return render_dashboard(request, 'events/event_form.html', {'form': form, 'title': 'Edit Event'})
+    # Set active_page for consistent styling
+    context = {'form': form, 'title': 'Edit Event'}
+    if request.session.get('from_dashboard'):
+        context['active_page'] = 'dashboard'
+    
+    return render(request, 'events/event_form.html', context)
 
 @admin_or_organizer_required
-@dashboard_only
 def event_delete(request, pk):
     event = get_object_or_404(Event, pk=pk)
     if request.method == 'POST':
@@ -168,7 +175,12 @@ def event_delete(request, pk):
         messages.success(request, 'Event deleted successfully!')
         return redirect('event_list')
     
-    return render_dashboard(request, 'events/event_confirm_delete.html', {'event': event})
+    # Set active_page for consistent styling
+    context = {'event': event}
+    if request.session.get('from_dashboard'):
+        context['active_page'] = 'dashboard'
+    
+    return render(request, 'events/event_confirm_delete.html', context)
 
 def event_detail(request, pk):
     event = get_object_or_404(Event, pk=pk)
@@ -215,7 +227,6 @@ def user_list(request):
     return render(request, 'events/user_list.html', context)
 
 @admin_required
-@dashboard_only
 def user_delete(request, pk):
     user = get_object_or_404(User, pk=pk)
     if request.method == 'POST':
@@ -223,10 +234,14 @@ def user_delete(request, pk):
         messages.success(request, 'User deleted successfully!')
         return redirect('user_list')
     
-    return render_dashboard(request, 'events/user_confirm_delete.html', {'user': user})
+    # Set active_page for consistent styling
+    context = {'user': user}
+    if request.session.get('from_dashboard'):
+        context['active_page'] = 'dashboard'
+    
+    return render(request, 'events/user_confirm_delete.html', context)
 
 @admin_required
-@dashboard_only
 def user_role_update(request, pk):
     user = get_object_or_404(User, pk=pk)
     if request.method == 'POST':
@@ -250,14 +265,17 @@ def user_role_update(request, pk):
         'available_roles': available_roles,
     }
     
-    return render_dashboard(request, 'events/user_role_form.html', context)
+    # Set active_page for consistent styling
+    if request.session.get('from_dashboard'):
+        context['active_page'] = 'dashboard'
+    
+    return render(request, 'events/user_role_form.html', context)
 
 def category_list(request):
     categories = Category.objects.prefetch_related('events').all()
     return render(request, 'events/category_list.html', {'categories': categories})
 
 @admin_or_organizer_required
-@dashboard_only
 def category_create(request):
     if request.method == 'POST':
         form = CategoryForm(request.POST)
@@ -268,10 +286,14 @@ def category_create(request):
     else:
         form = CategoryForm()
     
-    return render_dashboard(request, 'events/category_form.html', {'form': form, 'title': 'Create Category'})
+    # Set active_page for consistent styling
+    context = {'form': form, 'title': 'Create Category'}
+    if request.session.get('from_dashboard'):
+        context['active_page'] = 'dashboard'
+    
+    return render(request, 'events/category_form.html', context)
 
 @admin_or_organizer_required
-@dashboard_only
 def category_update(request, pk):
     category = get_object_or_404(Category, pk=pk)
     if request.method == 'POST':
@@ -283,10 +305,14 @@ def category_update(request, pk):
     else:
         form = CategoryForm(instance=category)
     
-    return render_dashboard(request, 'events/category_form.html', {'form': form, 'title': 'Edit Category'})
+    # Set active_page for consistent styling
+    context = {'form': form, 'title': 'Edit Category'}
+    if request.session.get('from_dashboard'):
+        context['active_page'] = 'dashboard'
+    
+    return render(request, 'events/category_form.html', context)
 
 @admin_or_organizer_required
-@dashboard_only
 def category_delete(request, pk):
     category = get_object_or_404(Category, pk=pk)
     if request.method == 'POST':
@@ -294,7 +320,12 @@ def category_delete(request, pk):
         messages.success(request, 'Category deleted successfully!')
         return redirect('category_list')
     
-    return render_dashboard(request, 'events/category_confirm_delete.html', {'category': category})
+    # Set active_page for consistent styling
+    context = {'category': category}
+    if request.session.get('from_dashboard'):
+        context['active_page'] = 'dashboard'
+    
+    return render(request, 'events/category_confirm_delete.html', context)
 
 @any_authenticated_user
 def rsvp_create(request, event_pk):
@@ -313,14 +344,10 @@ def rsvp_create(request, event_pk):
             rsvp.event = event
             rsvp.save()
             
-            # Send email confirmation
+            # Email notifications will be sent automatically by signals
             if existing_rsvp:
-                # Update email
-                send_rsvp_update_email(user, event)
                 messages.success(request, 'Your RSVP has been updated!')
             else:
-                # New RSVP email
-                send_rsvp_confirmation_email(user, event)
                 messages.success(request, 'Thank you for your RSVP!')
             
             return redirect('event_detail', pk=event_pk)

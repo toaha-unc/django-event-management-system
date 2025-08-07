@@ -26,13 +26,7 @@ def signup_view(request):
                 user.is_active = True  # Keep user active but unverified
                 user.save()
                 
-                # Assign to Participant group by default
-                participant_group, created = Group.objects.get_or_create(name='Participant')
-                user.groups.add(participant_group)
-                
-                # Create user profile (this will be done by signal, but ensure it exists)
-                if not hasattr(user, 'profile'):
-                    UserProfile.objects.create(user=user)
+                # User profile creation and group assignment will be handled by signals
                 
                 # Send activation email
                 if send_activation_email(user, request):

@@ -1,0 +1,23 @@
+RSVP Cancelled - Event Management System
+
+Hello {{ user.first_name|default:user.username }},
+
+We've received your request to cancel your RSVP for the following event:
+
+EVENT DETAILS
+=============
+Event: {{ event.name }}
+Date: {{ event.date|date:"F j, Y" }}
+Time: {{ event.time|time:"g:i A" }}
+Location: {{ event.location }}
+Category: {{ event.category.name }}
+
+Your RSVP has been successfully cancelled. We're sorry you won't be able to attend.
+
+If you change your mind, you can always RSVP again for this event (as long as it hasn't started yet).
+
+Thank you for using our Event Management System!
+
+---
+This is an automated message from the Event Management System. Please do not reply to this email.
+If you have any questions, please contact our support team.
