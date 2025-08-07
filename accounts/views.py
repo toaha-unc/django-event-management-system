@@ -15,6 +15,12 @@ from events.models import UserProfile
 
 def signup_view(request):
     if request.user.is_authenticated:
+        # Redirect already authenticated users to their appropriate dashboard
+        if hasattr(request.user, 'profile'):
+            if request.user.profile.is_admin() or request.user.profile.is_organizer():
+                return redirect('organizer_dashboard')
+            else:
+                return redirect('participant_dashboard')  # Redirects to "My RSVPs" page
         return redirect('home')
     
     if request.method == 'POST':
@@ -48,6 +54,12 @@ def signup_view(request):
 
 def login_view(request):
     if request.user.is_authenticated:
+        # Redirect already authenticated users to their appropriate dashboard
+        if hasattr(request.user, 'profile'):
+            if request.user.profile.is_admin() or request.user.profile.is_organizer():
+                return redirect('organizer_dashboard')
+            else:
+                return redirect('participant_dashboard')  # Redirects to "My RSVPs" page
         return redirect('home')
     
     if request.method == 'POST':
@@ -65,8 +77,26 @@ def login_view(request):
                 
                 login(request, user)
                 messages.success(request, f'Welcome back, {user.first_name or user.username}!')
-                next_url = request.GET.get('next', 'home')
-                return redirect(next_url)
+                
+                # Check if there's a 'next' URL parameter (for protected pages)
+                next_url = request.GET.get('next')
+                if next_url:
+                    return redirect(next_url)
+                
+                # Redirect based on user role to their respective dashboards
+                # Admin Dashboard: Full access to manage all events, participants, and categories (uses organizer_dashboard)
+                # Organizer Dashboard: Manage events and categories only  
+                # Participant Dashboard (My RSVPs): View events they have RSVP'd to
+                if hasattr(user, 'profile'):
+                    if user.profile.is_admin():
+                        return redirect('organizer_dashboard')  # Admin uses organizer dashboard with full access
+                    elif user.profile.is_organizer():
+                        return redirect('organizer_dashboard')
+                    else:  # Participant or any other role
+                        return redirect('participant_dashboard')  # Redirects to "My RSVPs" page
+                else:
+                    # Fallback if no profile exists
+                    return redirect('home')
             else:
                 messages.error(request, 'Invalid username or password.')
         else:
