@@ -1,13 +1,17 @@
 from pathlib import Path
 from django.contrib.messages import constants as messages
 import dj_database_url
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-q@f!wa$!c**ugnq+e0h6&bk5otv08qd@xij-bdo4ibc#^=0qa%'
-DEBUG = True
-ALLOWED_HOSTS = ['*']
-CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com', 'http://127.0.0.1:8000/']
+SECRET_KEY = os.getenv('SECRET_KEY')
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -53,21 +57,10 @@ WSGI_APPLICATION = 'EMS.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default='postgresql://ems_db_24yx_user:3DLvWcEV8aTyUZfUN2iI6zYSQBMacZFj@dpg-d2adrlngi27c73f71jug-a.oregon-postgres.render.com/ems_db_24yx',
+        default=os.getenv('DATABASE_URL'),
         conn_max_age=600
     )
 }
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'ems',
-#         'USER': 'postgres',
-#         'PASSWORD': 'bondstone',
-#         'HOST': 'localhost',
-#         'PORT': '5432'
-#     }
-# }
 
 
 
@@ -125,12 +118,11 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 # Email settings for RSVP confirmations
-# Gmail SMTP Configuration
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'toahasiddique104@gmail.com'  
-EMAIL_HOST_PASSWORD = 'ugrl kbwy hnks syvl'  
-DEFAULT_FROM_EMAIL = 'toahasiddique104@gmail.com'  
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
 
