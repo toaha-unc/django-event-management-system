@@ -112,7 +112,7 @@ def event_list(request):
         events = events.filter(date__lte=end_date)
 
     
-    total_participants = User.objects.filter(groups__name='Participant').count()
+    total_participants = User.objects.filter(rsvps__isnull=False).distinct().count()
     categories = Category.objects.all()
 
     context = {
