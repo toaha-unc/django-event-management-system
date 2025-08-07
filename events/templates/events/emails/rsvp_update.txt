@@ -1,0 +1,24 @@
+RSVP Updated - Event Management System
+
+Hello {{ user.first_name|default:user.username }},
+
+Your RSVP has been updated for the following event:
+
+EVENT DETAILS:
+- Name: {{ event.name }}
+- Date: {{ event.date }}
+- Time: {{ event.time }}
+- Location: {{ event.location }}
+- Category: {{ event.category.name }}
+- Description: {{ event.description }}
+
+Your Updated RSVP Status: {{ status_display }}
+
+You can continue to view and manage your RSVPs by logging into your account at any time.
+
+Best regards,
+The Event Management Team
+
+---
+This is an automated message from the Event Management System.
+If you have any questions, please contact the event organizer.

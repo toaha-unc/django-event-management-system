@@ -1,0 +1,26 @@
+RSVP Confirmation - Event Management System
+
+Hello {{ user.first_name|default:user.username }},
+
+Thank you for your RSVP! Your response has been recorded for the following event:
+
+EVENT DETAILS:
+- Name: {{ event.name }}
+- Date: {{ event.date }}
+- Time: {{ event.time }}
+- Location: {{ event.location }}
+- Category: {{ event.category.name }}
+- Description: {{ event.description }}
+
+Your RSVP Status: {{ status_display }}
+
+You can view and manage your RSVPs by logging into your account at any time.
+
+If you need to change your RSVP status, please log in to your account and update your response.
+
+Best regards,
+The Event Management Team
+
+---
+This is an automated message from the Event Management System.
+If you have any questions, please contact the event organizer.

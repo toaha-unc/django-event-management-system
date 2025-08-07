@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}My RSVPs - Event Management System{% endblock %}
+{% block content %}
+
+<div class="mb-8">
+    <h2 class="text-3xl font-extrabold text-blue-700 mb-6">My RSVPs</h2>
+    
+    <!-- RSVP Statistics -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+        <div class="bg-white rounded-xl shadow p-6 text-center">
+            <div class="text-3xl font-extrabold text-blue-600 mb-2">{{ total_rsvps }}</div>
+            <div class="text-gray-600 font-semibold">Total RSVPs</div>
+        </div>
+        <div class="bg-white rounded-xl shadow p-6 text-center">
+            <div class="text-3xl font-extrabold text-green-600 mb-2">{{ total_rsvps }}</div>
+            <div class="text-gray-600 font-semibold">Attending</div>
+        </div>
+    </div>
+
+    <!-- Upcoming RSVPs -->
+    <div class="bg-white rounded-xl shadow p-8 mb-8">
+        <h3 class="text-2xl font-bold mb-6 text-blue-700">Upcoming Events</h3>
+        {% if upcoming_rsvps %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for rsvp in upcoming_rsvps %}
+                <div class="border border-gray-200 rounded-lg p-6 hover:shadow-md transition">
+                    <div class="mb-4">
+                        <h4 class="text-lg font-semibold text-gray-900">
+                            <a href="{% url 'event_detail' rsvp.event.pk %}" class="hover:text-blue-600">
+                                {{ rsvp.event.name }}
+                            </a>
+                        </h4>
+                    </div>
+                    
+                    <div class="space-y-2 text-sm text-gray-600 mb-4">
+                        <div class="flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            {{ rsvp.event.date }}
+                        </div>
+                        <div class="flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {{ rsvp.event.time }}
+                        </div>
+                        <div class="flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            {{ rsvp.event.location }}
+                        </div>
+                    </div>
+                    
+                    <div class="flex space-x-2">
+                        <a href="{% url 'rsvp_create' rsvp.event.pk %}" 
+                           class="flex-1 bg-blue-600 text-white px-4 py-2 rounded text-sm text-center hover:bg-blue-700 transition">
+                            Update RSVP
+                        </a>
+                        <a href="{% url 'rsvp_delete' rsvp.event.pk %}" 
+                           class="bg-red-600 text-white px-4 py-2 rounded text-sm hover:bg-red-700 transition">
+                            Remove
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-8">
+                <div class="text-gray-400 text-6xl mb-4">📅</div>
+                <h4 class="text-xl font-semibold text-gray-600 mb-2">No upcoming RSVPs</h4>
+                <p class="text-gray-500">You haven't RSVP'd to any upcoming events yet.</p>
+                <a href="{% url 'event_list' %}" class="inline-block mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+                    Browse Events
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Past RSVPs -->
+    <div class="bg-white rounded-xl shadow p-8">
+        <h3 class="text-2xl font-bold mb-6 text-blue-700">Past Events</h3>
+        {% if past_rsvps %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for rsvp in past_rsvps %}
+                <div class="border border-gray-200 rounded-lg p-6 bg-gray-50">
+                    <div class="mb-4">
+                        <h4 class="text-lg font-semibold text-gray-900">
+                            <a href="{% url 'event_detail' rsvp.event.pk %}" class="hover:text-blue-600">
+                                {{ rsvp.event.name }}
+                            </a>
+                        </h4>
+                    </div>
+                    
+                    <div class="space-y-2 text-sm text-gray-600 mb-4">
+                        <div class="flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            {{ rsvp.event.date }}
+                        </div>
+                        <div class="flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {{ rsvp.event.time }}
+                        </div>
+                        <div class="flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            {{ rsvp.event.location }}
+                        </div>
+                    </div>
+                    
+                    <div class="text-xs text-gray-500">
+                        RSVP'd on {{ rsvp.rsvp_date|date:"M d, Y" }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-8">
+                <div class="text-gray-400 text-6xl mb-4">📚</div>
+                <h4 class="text-xl font-semibold text-gray-600 mb-2">No past RSVPs</h4>
+                <p class="text-gray-500">You haven't RSVP'd to any past events.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

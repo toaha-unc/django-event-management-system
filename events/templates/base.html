@@ -28,6 +28,9 @@
                         {% if user.is_authenticated and user.groups.all.0.name == 'Admin' or user.groups.all.0.name == 'Organizer' %}
                         <a href="{% url 'organizer_dashboard' %}" class="text-gray-700 hover:text-blue-600 font-medium">Dashboard</a>
                         {% endif %}
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'participant_dashboard' %}" class="text-gray-700 hover:text-blue-600 font-medium">My RSVPs</a>
+                        {% endif %}
                     </div>
                 </div>
                 
@@ -68,6 +71,9 @@
                 {% endif %}
                 {% if user.is_authenticated and user.groups.all.0.name == 'Admin' or user.groups.all.0.name == 'Organizer' %}
                 <a href="{% url 'organizer_dashboard' %}" class="block py-2 text-gray-700 hover:text-blue-600 font-medium">Dashboard</a>
+                {% endif %}
+                {% if user.is_authenticated %}
+                <a href="{% url 'participant_dashboard' %}" class="block py-2 text-gray-700 hover:text-blue-600 font-medium">My RSVPs</a>
                 {% endif %}
             </div>
         </div>

@@ -24,6 +24,9 @@ class Event(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_events', null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    # RSVP participants
+    rsvp_participants = models.ManyToManyField(User, through='RSVP', related_name='rsvp_events')
 
     class Meta:
         verbose_name = 'Event'
@@ -31,6 +34,10 @@ class Event(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def get_rsvp_count(self):
+        """Get the number of attending RSVPs for this event"""
+        return self.rsvp_set.count()
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
@@ -60,6 +67,22 @@ class UserProfile(models.Model):
     
     def is_participant(self):
         return self.user.groups.filter(name='Participant').exists()
+
+class RSVP(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rsvps')
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='rsvp_set')
+    rsvp_date = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    notes = models.TextField(blank=True, null=True, help_text="Optional notes for the event organizer")
+    
+    class Meta:
+        verbose_name = 'RSVP'
+        verbose_name_plural = 'RSVPs'
+        unique_together = ['user', 'event']
+        ordering = ['-rsvp_date']
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.event.name} (Attending)"
 
 class EventRegistration(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='event_registrations')

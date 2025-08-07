@@ -34,4 +34,18 @@
         <li>No past events.</li>
         {% endfor %}
     </ul>
+{% elif stats_type == 'participants' %}
+    <h3 class="text-xl font-semibold mb-2">Participants</h3>
+    {% if users_with_rsvps %}
+        <ul class="space-y-2">
+            {% for user_obj in users_with_rsvps %}
+            <li class="text-gray-700">
+                <span class="font-medium">{{ user_obj.get_full_name|default:user_obj.username }}</span>
+                <span class="text-gray-500">({{ user_obj.email }})</span>
+            </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="text-gray-500">No participants have RSVP'd to events yet.</p>
+    {% endif %}
 {% endif %}

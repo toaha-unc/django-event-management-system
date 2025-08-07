@@ -114,3 +114,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+# Email settings for RSVP confirmations
+# Gmail SMTP Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'toahasiddique104@gmail.com'  # Replace with your Gmail address
+EMAIL_HOST_PASSWORD = 'ugrl kbwy hnks syvl'  # Replace with your Gmail app password
+DEFAULT_FROM_EMAIL = 'toahasiddique104@gmail.com'  # Should match EMAIL_HOST_USER
+
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# DEFAULT_FROM_EMAIL = 'noreply@eventms.com'

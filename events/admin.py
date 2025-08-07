@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Event, Category, UserProfile, EventRegistration
+from .models import Event, Category, UserProfile, EventRegistration, RSVP
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
@@ -29,3 +29,14 @@ class EventRegistrationAdmin(admin.ModelAdmin):
     list_filter = ['attended', 'registered_at', 'event__category']
     search_fields = ['user__username', 'event__name']
     date_hierarchy = 'registered_at'
+
+@admin.register(RSVP)
+class RSVPAdmin(admin.ModelAdmin):
+    list_display = ['user', 'event', 'rsvp_date', 'updated_at']
+    list_filter = ['rsvp_date', 'event__category', 'event__date']
+    search_fields = ['user__username', 'user__email', 'event__name', 'notes']
+    date_hierarchy = 'rsvp_date'
+    readonly_fields = ['rsvp_date', 'updated_at']
+    
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('user', 'event', 'event__category')

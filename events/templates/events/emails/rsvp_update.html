@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSVP Updated</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #f59e0b;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+        }
+        .content {
+            background-color: #f8fafc;
+            padding: 30px;
+            border-radius: 0 0 8px 8px;
+        }
+        .event-details {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #f59e0b;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+        .status-yes {
+            background-color: #10b981;
+            color: white;
+        }
+        .status-maybe {
+            background-color: #f59e0b;
+            color: white;
+        }
+        .status-no {
+            background-color: #ef4444;
+            color: white;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            color: #6b7280;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>RSVP Updated</h1>
+        <p>Event Management System</p>
+    </div>
+    
+    <div class="content">
+        <h2>Hello {{ user.first_name|default:user.username }},</h2>
+        
+        <p>Your RSVP has been updated for the following event:</p>
+        
+        <div class="event-details">
+            <h3>{{ event.name }}</h3>
+            <p><strong>Date:</strong> {{ event.date }}</p>
+            <p><strong>Time:</strong> {{ event.time }}</p>
+            <p><strong>Location:</strong> {{ event.location }}</p>
+            <p><strong>Category:</strong> {{ event.category.name }}</p>
+            <p><strong>Description:</strong> {{ event.description }}</p>
+        </div>
+        
+        <p><strong>Your Updated RSVP Status:</strong></p>
+        <span class="status-badge status-yes">Attending</span>
+        
+        <p>You can continue to view and manage your RSVPs by logging into your account at any time.</p>
+        
+        <p>Best regards,<br>
+        The Event Management Team</p>
+    </div>
+    
+    <div class="footer">
+        <p>This is an automated message from the Event Management System.</p>
+        <p>If you have any questions, please contact the event organizer.</p>
+    </div>
+</body>
+</html>

@@ -14,12 +14,17 @@ urlpatterns = [
     path('events/<int:pk>/edit/', views.event_update, name='event_update'),
     path('events/<int:pk>/delete/', views.event_delete, name='event_delete'),
     path('events/<int:pk>/', views.event_detail, name='event_detail'),
-    path('events/<int:pk>/register/', views.register_for_event, name='register_for_event'),
-    path('events/<int:pk>/unregister/', views.unregister_from_event, name='unregister_from_event'),
+    path('events/<int:event_pk>/register/', views.register_for_event, name='register_for_event'),
+    path('events/<int:event_pk>/unregister/', views.unregister_from_event, name='unregister_from_event'),
+    
+    # RSVP URLs
+    path('events/<int:event_pk>/rsvp/', views.rsvp_create, name='rsvp_create'),
+    path('events/<int:event_pk>/rsvp/delete/', views.rsvp_delete, name='rsvp_delete'),
 
     path('users/', views.user_list, name='user_list'),
     path('users/<int:pk>/delete/', views.user_delete, name='user_delete'),
     path('users/<int:pk>/role/', views.user_role_update, name='user_role_update'),
 
     path('dashboard/', views.organizer_dashboard, name='organizer_dashboard'),
+    path('participant-dashboard/', views.participant_dashboard, name='participant_dashboard'),
 ]

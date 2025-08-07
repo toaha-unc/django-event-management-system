@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}RSVP for {{ event.name }}{% endblock %}
+{% block content %}
+
+<div class="max-w-2xl mx-auto">
+    <h2 class="text-3xl font-extrabold text-blue-700 mb-6">
+        {% if existing_rsvp %}Update RSVP{% else %}RSVP for Event{% endif %}
+    </h2>
+    
+    <!-- Event Details -->
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">{{ event.name }}</h3>
+        <div class="text-gray-600 space-y-2">
+            <p><strong>Date:</strong> {{ event.date }}</p>
+            <p><strong>Time:</strong> {{ event.time }}</p>
+            <p><strong>Location:</strong> {{ event.location }}</p>
+            <p><strong>Category:</strong> {{ event.category.name }}</p>
+        </div>
+        <p class="mt-4 text-gray-700">{{ event.description }}</p>
+    </div>
+
+    <!-- RSVP Form -->
+    <div class="bg-white rounded-xl shadow-lg p-8">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Additional Notes (Optional)</label>
+                {{ form.notes }}
+            </div>
+
+            <div class="flex space-x-4">
+                <button type="submit" class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+                    {% if existing_rsvp %}Update RSVP{% else %}Submit RSVP{% endif %}
+                </button>
+                <a href="{% url 'event_detail' event.pk %}" class="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-400 transition">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
