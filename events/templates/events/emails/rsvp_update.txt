@@ -1,4 +1,4 @@
-RSVP Updated - Event Management System
+RSVP Updated - EMS
 
 Hello {{ user.first_name|default:user.username }},
 
@@ -17,8 +17,8 @@ Your Updated RSVP Status: {{ status_display }}
 You can continue to view and manage your RSVPs by logging into your account at any time.
 
 Best regards,
-The Event Management Team
+The EMS Team
 
 ---
-This is an automated message from the Event Management System.
+This is an automated message from the EMS.
 If you have any questions, please contact the event organizer.

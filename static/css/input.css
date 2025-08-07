@@ -61,3 +61,22 @@
   ring-offset: 2px;
   ring-color: #3b82f6; /* blue-500 */
 }
+
+/* Mobile responsive improvements */
+@media (max-width: 768px) {
+  .ems-brand:hover {
+    transform: scale(1.05); /* Smaller scale on mobile */
+  }
+  
+  .auth-button {
+    min-height: 44px; /* iOS recommended touch target size */
+    padding: 12px 16px;
+  }
+  
+  /* Improve mobile navigation */
+  #mobile-menu a {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+}

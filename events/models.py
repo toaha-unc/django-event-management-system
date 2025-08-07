@@ -44,6 +44,10 @@ class UserProfile(models.Model):
     phone = models.CharField(max_length=15, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
+    # Email activation fields
+    email_verified = models.BooleanField(default=False)
+    email_verification_token = models.CharField(max_length=100, blank=True, null=True)
+    email_verification_sent_at = models.DateTimeField(blank=True, null=True)
     
     class Meta:
         verbose_name = 'User Profile'

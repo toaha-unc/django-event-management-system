@@ -1,0 +1,19 @@
+Welcome to EMS
+
+Hello {{ user.first_name|default:user.username }},
+
+{% if is_reminder %}
+We noticed you haven't activated your account yet. To start using EMS, please activate your account by visiting the link below:
+{% else %}
+Thank you for signing up to EMS! To complete your registration and start using our platform, please activate your account by visiting the link below:
+{% endif %}
+
+{{ activation_url }}
+
+Important: This activation link will expire in 24 hours for security reasons.
+
+If you didn't create an account with us, please ignore this email.
+
+---
+This is an automated message from the EMS. Please do not reply to this email.
+If you have any questions, please contact our support team.

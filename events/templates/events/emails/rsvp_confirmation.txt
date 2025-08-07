@@ -1,4 +1,4 @@
-RSVP Confirmation - Event Management System
+RSVP Confirmation - EMS
 
 Hello {{ user.first_name|default:user.username }},
 
@@ -19,8 +19,8 @@ You can view and manage your RSVPs by logging into your account at any time.
 If you need to change your RSVP status, please log in to your account and update your response.
 
 Best regards,
-The Event Management Team
+The EMS Team
 
 ---
-This is an automated message from the Event Management System.
+This is an automated message from the EMS.
 If you have any questions, please contact the event organizer.
