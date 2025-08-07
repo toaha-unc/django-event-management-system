@@ -17,7 +17,7 @@ urlpatterns = [
     path('events/<int:event_pk>/register/', views.register_for_event, name='register_for_event'),
     path('events/<int:event_pk>/unregister/', views.unregister_from_event, name='unregister_from_event'),
     
-    # RSVP URLs
+    
     path('events/<int:event_pk>/rsvp/', views.rsvp_create, name='rsvp_create'),
     path('events/<int:event_pk>/rsvp/delete/', views.rsvp_delete, name='rsvp_delete'),
 

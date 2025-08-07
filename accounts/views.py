@@ -15,26 +15,24 @@ from events.models import UserProfile
 
 def signup_view(request):
     if request.user.is_authenticated:
-        # Redirect already authenticated users to their appropriate dashboard
+        
         if hasattr(request.user, 'profile'):
             if request.user.profile.is_admin() or request.user.profile.is_organizer():
                 return redirect('organizer_dashboard')
             else:
-                return redirect('participant_dashboard')  # Redirects to "My RSVPs" page
+                return redirect('participant_dashboard')  
         return redirect('home')
     
     if request.method == 'POST':
         form = UserSignUpForm(request.POST)
         if form.is_valid():
             try:
-                # Create user but don't log them in yet
+                
                 user = form.save(commit=False)
-                user.is_active = True  # Keep user active but unverified
+                user.is_active = True  
                 user.save()
                 
-                # User profile creation and group assignment will be handled by signals
-                
-                # Send activation email
+
                 if send_activation_email(user, request):
                     messages.success(request, 'Account created successfully! Please check your email to activate your account before logging in.')
                 else:
@@ -45,7 +43,7 @@ def signup_view(request):
                 messages.error(request, f'Error creating account: {str(e)}')
         else:
             messages.error(request, 'Please correct the errors below.')
-            # Print form errors for debugging
+            
             print("Form errors:", form.errors)
     else:
         form = UserSignUpForm()
@@ -54,12 +52,12 @@ def signup_view(request):
 
 def login_view(request):
     if request.user.is_authenticated:
-        # Redirect already authenticated users to their appropriate dashboard
+        
         if hasattr(request.user, 'profile'):
             if request.user.profile.is_admin() or request.user.profile.is_organizer():
                 return redirect('organizer_dashboard')
             else:
-                return redirect('participant_dashboard')  # Redirects to "My RSVPs" page
+                return redirect('participant_dashboard')  
         return redirect('home')
     
     if request.method == 'POST':
@@ -70,7 +68,7 @@ def login_view(request):
             user = authenticate(username=username, password=password)
             
             if user is not None:
-                # Check if email is verified
+                
                 if hasattr(user, 'profile') and not user.profile.email_verified:
                     messages.error(request, 'Please activate your account by clicking the link in the email we sent you. Check your spam folder if you don\'t see it.')
                     return render(request, 'accounts/login.html', {'form': form})
@@ -78,24 +76,21 @@ def login_view(request):
                 login(request, user)
                 messages.success(request, f'Welcome back, {user.first_name or user.username}!')
                 
-                # Check if there's a 'next' URL parameter (for protected pages)
+                
                 next_url = request.GET.get('next')
                 if next_url:
                     return redirect(next_url)
                 
-                # Redirect based on user role to their respective dashboards
-                # Admin Dashboard: Full access to manage all events, participants, and categories (uses organizer_dashboard)
-                # Organizer Dashboard: Manage events and categories only  
-                # Participant Dashboard (My RSVPs): View events they have RSVP'd to
+
                 if hasattr(user, 'profile'):
                     if user.profile.is_admin():
-                        return redirect('organizer_dashboard')  # Admin uses organizer dashboard with full access
+                        return redirect('organizer_dashboard')  
                     elif user.profile.is_organizer():
                         return redirect('organizer_dashboard')
-                    else:  # Participant or any other role
-                        return redirect('participant_dashboard')  # Redirects to "My RSVPs" page
+                    else: 
+                        return redirect('participant_dashboard')  
                 else:
-                    # Fallback if no profile exists
+                    
                     return redirect('home')
             else:
                 messages.error(request, 'Invalid username or password.')
@@ -107,18 +102,18 @@ def login_view(request):
     return render(request, 'accounts/login.html', {'form': form})
 
 def activate_account(request, uidb64, token):
-    """Activate user account using token"""
+    
     try:
-        # Decode user ID
+        
         uid = force_str(urlsafe_base64_decode(uidb64))
         user = User.objects.get(pk=uid)
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None
     
     if user is not None and default_token_generator.check_token(user, token):
-        # Check if user has a profile
+        
         if hasattr(user, 'profile'):
-            # Mark email as verified
+            
             user.profile.email_verified = True
             user.profile.email_verification_token = None
             user.profile.save()
@@ -133,13 +128,13 @@ def activate_account(request, uidb64, token):
     return redirect('accounts:login')
 
 def resend_activation(request):
-    """Resend activation email"""
+    
     if request.method == 'POST':
         email = request.POST.get('email')
         try:
             user = User.objects.get(email=email)
             if hasattr(user, 'profile') and not user.profile.email_verified:
-                # Check if enough time has passed since last email (prevent spam)
+                
                 if (user.profile.email_verification_sent_at is None or 
                     timezone.now() - user.profile.email_verification_sent_at > timedelta(minutes=5)):
                     

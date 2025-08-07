@@ -31,7 +31,7 @@ def dashboard_only(view_func):
     return _wrapped_view
 
 def home(request):
-    request.session.pop('from_dashboard', None)  # Exit dashboard mode
+    request.session.pop('from_dashboard', None)  
     query = request.GET.get('search', '')
     events = Event.objects.select_related('category').prefetch_related('registrations')
     if query:
@@ -47,7 +47,7 @@ def organizer_dashboard(request):
     today = timezone.now().date()
     all_events = Event.objects.all()
     
-    # Count active participants (unique users who have RSVP'd)
+    
     total_participants = User.objects.filter(rsvps__isnull=False).distinct().count()
     
     context = {
@@ -67,7 +67,7 @@ def organizer_dashboard(request):
         elif stats_type == 'past':
             context.update({'stats_type': 'past', 'past_events_list': all_events.filter(date__lt=today)})
         elif stats_type == 'participants':
-            # Get only users who have RSVP'd to events
+            
             users_with_rsvps = User.objects.filter(rsvps__isnull=False).distinct().order_by('first_name', 'last_name', 'username')
             
             context.update({
@@ -84,7 +84,7 @@ def participant_dashboard(request):
     user = request.user
     user_rsvps = RSVP.objects.filter(user=user).select_related('event', 'event__category').order_by('event__date')
     
-    # Separate RSVPs by status
+    
     upcoming_rsvps = user_rsvps.filter(event__date__gte=timezone.now().date())
     past_rsvps = user_rsvps.filter(event__date__lt=timezone.now().date())
     
@@ -111,7 +111,7 @@ def event_list(request):
     elif end_date:
         events = events.filter(date__lte=end_date)
 
-    # Count participants based on RSVPs
+    
     total_participants = User.objects.filter(groups__name='Participant').count()
     categories = Category.objects.all()
 
@@ -141,7 +141,7 @@ def event_create(request):
     else:
         form = EventForm()
     
-    # Set active_page for consistent styling
+    
     context = {'form': form, 'title': 'Create Event'}
     if request.session.get('from_dashboard'):
         context['active_page'] = 'dashboard'
@@ -160,7 +160,7 @@ def event_update(request, pk):
     else:
         form = EventForm(instance=event)
     
-    # Set active_page for consistent styling
+    
     context = {'form': form, 'title': 'Edit Event'}
     if request.session.get('from_dashboard'):
         context['active_page'] = 'dashboard'
@@ -175,7 +175,7 @@ def event_delete(request, pk):
         messages.success(request, 'Event deleted successfully!')
         return redirect('event_list')
     
-    # Set active_page for consistent styling
+    
     context = {'event': event}
     if request.session.get('from_dashboard'):
         context['active_page'] = 'dashboard'
@@ -189,7 +189,7 @@ def event_detail(request, pk):
     if request.user.is_authenticated:
         user_rsvp = RSVP.objects.filter(user=request.user, event=event).first()
     
-    # Get RSVP statistics
+    
     rsvp_stats = {
         'total_rsvps': event.get_rsvp_count(),
     }
@@ -204,15 +204,15 @@ def event_detail(request, pk):
 
 @admin_required
 def user_list(request):
-    # Get all users with their roles and RSVP counts
+    
     users = User.objects.select_related('profile').prefetch_related('groups', 'rsvps').all()
     
-    # Add additional context for each user
+    
     for user in users:
         user.rsvp_count = user.rsvps.count()
         user.primary_role = user.groups.first().name if user.groups.exists() else 'No Role'
     
-    # Calculate role counts
+    
     admin_count = sum(1 for user in users if user.primary_role == 'Admin')
     organizer_count = sum(1 for user in users if user.primary_role == 'Organizer')
     participant_count = sum(1 for user in users if user.primary_role == 'Participant')
@@ -234,7 +234,7 @@ def user_delete(request, pk):
         messages.success(request, 'User deleted successfully!')
         return redirect('user_list')
     
-    # Set active_page for consistent styling
+    
     context = {'user': user}
     if request.session.get('from_dashboard'):
         context['active_page'] = 'dashboard'
@@ -247,15 +247,15 @@ def user_role_update(request, pk):
     if request.method == 'POST':
         role = request.POST.get('role')
         if role:
-            # Remove user from all groups
+            
             user.groups.clear()
-            # Add user to selected group
+            
             group = Group.objects.get(name=role)
             user.groups.add(group)
             messages.success(request, f'User role updated to {role}')
             return redirect('user_list')
     
-    # Get current role and available roles
+    
     current_role = user.groups.first().name if user.groups.exists() else 'No Role'
     available_roles = ['Admin', 'Organizer', 'Participant']
     
@@ -265,7 +265,7 @@ def user_role_update(request, pk):
         'available_roles': available_roles,
     }
     
-    # Set active_page for consistent styling
+    
     if request.session.get('from_dashboard'):
         context['active_page'] = 'dashboard'
     
@@ -286,7 +286,7 @@ def category_create(request):
     else:
         form = CategoryForm()
     
-    # Set active_page for consistent styling
+    
     context = {'form': form, 'title': 'Create Category'}
     if request.session.get('from_dashboard'):
         context['active_page'] = 'dashboard'
@@ -305,7 +305,7 @@ def category_update(request, pk):
     else:
         form = CategoryForm(instance=category)
     
-    # Set active_page for consistent styling
+    
     context = {'form': form, 'title': 'Edit Category'}
     if request.session.get('from_dashboard'):
         context['active_page'] = 'dashboard'
@@ -320,7 +320,7 @@ def category_delete(request, pk):
         messages.success(request, 'Category deleted successfully!')
         return redirect('category_list')
     
-    # Set active_page for consistent styling
+   
     context = {'category': category}
     if request.session.get('from_dashboard'):
         context['active_page'] = 'dashboard'
@@ -333,7 +333,7 @@ def rsvp_create(request, event_pk):
     event = get_object_or_404(Event, pk=event_pk)
     user = request.user
     
-    # Check if user already has an RSVP for this event
+    
     existing_rsvp = RSVP.objects.filter(user=user, event=event).first()
     
     if request.method == 'POST':
@@ -344,7 +344,7 @@ def rsvp_create(request, event_pk):
             rsvp.event = event
             rsvp.save()
             
-            # Email notifications will be sent automatically by signals
+            
             if existing_rsvp:
                 messages.success(request, 'Your RSVP has been updated!')
             else:
@@ -380,7 +380,7 @@ def rsvp_delete(request, event_pk):
     
     return render(request, 'events/rsvp_confirm_delete.html', {'event': event, 'rsvp': rsvp})
 
-# Legacy registration functions - now redirect to RSVP
+
 @any_authenticated_user
 def register_for_event(request, event_pk):
     """Legacy function - redirect to RSVP"""

@@ -6,7 +6,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
-            # Get the superuser
             superuser = User.objects.filter(is_superuser=True).first()
             if not superuser:
                 self.stdout.write(
@@ -14,13 +13,10 @@ class Command(BaseCommand):
                 )
                 return
 
-            # Get or create Admin group
             admin_group, created = Group.objects.get_or_create(name='Admin')
             
-            # Add superuser to Admin group
             superuser.groups.add(admin_group)
             
-            # Create user profile if it doesn't exist
             from events.models import UserProfile
             UserProfile.objects.get_or_create(user=superuser)
             

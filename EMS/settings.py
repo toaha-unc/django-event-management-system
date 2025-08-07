@@ -51,24 +51,23 @@ TEMPLATES = [
 WSGI_APPLICATION = 'EMS.wsgi.application'
 
 
-# DATABASES = {
-#     'default': dj_database_url.config(
-#         # Replace this value with your local database's connection string.
-#         default='postgresql://ems_db_24yx_user:3DLvWcEV8aTyUZfUN2iI6zYSQBMacZFj@dpg-d2adrlngi27c73f71jug-a.oregon-postgres.render.com/ems_db_24yx',
-#         conn_max_age=600
-#     )
-# }
-
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ems',
-        'USER': 'postgres',
-        'PASSWORD': 'bondstone',
-        'HOST': 'localhost',
-        'PORT': '5432'
-    }
+    'default': dj_database_url.config(
+        default='postgresql://ems_db_24yx_user:3DLvWcEV8aTyUZfUN2iI6zYSQBMacZFj@dpg-d2adrlngi27c73f71jug-a.oregon-postgres.render.com/ems_db_24yx',
+        conn_max_age=600
+    )
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'ems',
+#         'USER': 'postgres',
+#         'PASSWORD': 'bondstone',
+#         'HOST': 'localhost',
+#         'PORT': '5432'
+#     }
+# }
 
 
 
@@ -88,7 +87,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'Asia/Dhaka'  # Bangladesh Time (BDT)
+TIME_ZONE = 'Asia/Dhaka' 
 USE_I18N = True
 USE_TZ = True
 
@@ -131,9 +130,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'toahasiddique104@gmail.com'  # Replace with your Gmail address
-EMAIL_HOST_PASSWORD = 'ugrl kbwy hnks syvl'  # Replace with your Gmail app password
-DEFAULT_FROM_EMAIL = 'toahasiddique104@gmail.com'  # Should match EMAIL_HOST_USER
+EMAIL_HOST_USER = 'toahasiddique104@gmail.com'  
+EMAIL_HOST_PASSWORD = 'ugrl kbwy hnks syvl'  
+DEFAULT_FROM_EMAIL = 'toahasiddique104@gmail.com'  
 
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-# DEFAULT_FROM_EMAIL = 'noreply@eventms.com'

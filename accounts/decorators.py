@@ -15,7 +15,7 @@ def role_required(allowed_roles):
             if not request.user.is_authenticated:
                 return redirect('accounts:login')
             
-            # Check if user belongs to any of the allowed groups
+
             user_groups = request.user.groups.all()
             user_role_names = [group.name for group in user_groups]
             
