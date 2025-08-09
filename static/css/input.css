@@ -14,7 +14,7 @@
 
 /* Navigation Link Styles */
 .nav-link {
-  @apply text-gray-600 hover:text-blue-600 font-medium px-3 py-2 text-base transition-all duration-200 flex items-center;
+  @apply text-black hover:text-blue-600 font-medium px-3 py-2 text-base transition-all duration-200 flex items-center;
 }
 
 .nav-link:hover {
@@ -23,7 +23,7 @@
 
 /* Mobile Navigation Link Styles */
 .mobile-nav-link {
-  @apply block px-5 py-4 text-gray-700 hover:text-blue-600 rounded-lg text-lg font-medium transition-all duration-200 flex items-center;
+  @apply block px-5 py-4 text-black hover:text-blue-600 rounded-lg text-lg font-medium transition-all duration-200 flex items-center;
 }
 
 .mobile-nav-link:hover {
@@ -32,7 +32,7 @@
 
 /* Mobile Menu Button */
 .mobile-menu-btn {
-  @apply text-gray-600 hover:text-blue-600 focus:outline-none focus:text-blue-600 transition-all duration-200 p-2 rounded-lg hover:bg-gray-100;
+  @apply text-black hover:text-blue-600 focus:outline-none focus:text-blue-600 transition-all duration-200 p-2 rounded-lg hover:bg-gray-100;
 }
 
 .mobile-menu-btn:hover {
@@ -160,6 +160,77 @@
   /* Enhanced mobile menu animations */
   .mobile-nav-link:active {
     transform: none;
+  }
+  
+  /* Mobile navigation optimizations */
+  .nav-link {
+    @apply text-sm px-2 py-1;
+  }
+  
+  .mobile-nav-link {
+    @apply px-4 py-3 text-base;
+  }
+  
+  /* Mobile menu button improvements */
+  .mobile-menu-btn {
+    @apply p-3;
+  }
+}
+
+/* Tablet responsive improvements */
+@media (min-width: 769px) and (max-width: 1023px) {
+  .nav-link {
+    @apply px-2 py-2 text-sm;
+  }
+  
+  .ems-brand {
+    @apply text-lg;
+  }
+  
+  /* Tablet navigation spacing */
+  .nav-link:hover {
+    transform: scale(1.03);
+  }
+  
+  /* Optimize spacing for tablet screens */
+  .mobile-nav-link {
+    @apply px-4 py-3;
+  }
+}
+
+/* Laptop responsive improvements */
+@media (min-width: 1024px) and (max-width: 1439px) {
+  .nav-link {
+    @apply px-3 py-2 text-base;
+  }
+  
+  .ems-brand {
+    @apply text-xl;
+  }
+  
+  /* Laptop navigation hover effects */
+  .nav-link:hover {
+    transform: scale(1.05);
+  }
+}
+
+/* Large desktop responsive improvements */
+@media (min-width: 1440px) {
+  .nav-link {
+    @apply px-4 py-2 text-lg;
+  }
+  
+  .ems-brand {
+    @apply text-2xl;
+  }
+  
+  /* Enhanced hover effects for large screens */
+  .nav-link:hover {
+    transform: scale(1.08);
+  }
+  
+  .mobile-menu-btn:hover {
+    transform: scale(1.1);
   }
 }
 
