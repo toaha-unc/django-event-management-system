@@ -4,7 +4,7 @@ A comprehensive web application for managing events, user registration, and RSVP
 
 ## 🌐 Live Demo
 
-**Live Application**: [https://ango-event-management-system-60t0.onrender.com](https://ango-event-management-system-60t0.onrender.com)
+**Live Application**: [https://django-event-management-system-60t0.onrender.com](https://django-event-management-system-60t0.onrender.com)
 
 ## ✨ Features
 
@@ -236,7 +236,7 @@ python manage.py test
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
 
 ## 🆘 Support
 
