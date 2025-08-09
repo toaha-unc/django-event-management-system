@@ -58,16 +58,9 @@ WSGI_APPLICATION = 'EMS.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(
         default=os.getenv('DATABASE_URL'),
-        conn_max_age=600,
-        conn_health_checks=True,
+        conn_max_age=600
     )
 }
-
-# Add SSL configuration for PostgreSQL on Render
-if 'postgresql' in os.getenv('DATABASE_URL', ''):
-    DATABASES['default']['OPTIONS'] = {
-        'sslmode': 'require',
-    }
 
 
 
