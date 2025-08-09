@@ -18,13 +18,27 @@
                 <dl class="divide-y divide-gray-100">
                     <div class="bg-gray-50/50 px-6 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
                         <dt class="text-sm font-semibold text-gray-600">
+                            Profile Picture
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {% if user.profile_picture %}
+                                <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}'s profile picture" class="h-20 w-20 rounded-full object-cover border-2 border-gray-200">
+                            {% else %}
+                                <div class="h-20 w-20 rounded-full bg-gray-200 flex items-center justify-center">
+                                    <span class="text-gray-500 text-sm">No Image</span>
+                                </div>
+                            {% endif %}
+                        </dd>
+                    </div>
+                    <div class="bg-white px-6 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
+                        <dt class="text-sm font-semibold text-gray-600">
                             Full name
                         </dt>
                         <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                             {{ user.get_full_name|default:"Not provided" }}
                         </dd>
                     </div>
-                    <div class="bg-white px-6 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
+                    <div class="bg-gray-50/50 px-6 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
                         <dt class="text-sm font-semibold text-gray-600">
                             Username
                         </dt>
@@ -32,28 +46,47 @@
                             {{ user.username }}
                         </dd>
                     </div>
-                    <div class="bg-gray-50/50 px-6 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
+                    <div class="bg-white px-6 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
                         <dt class="text-sm font-semibold text-gray-600">
                             Email address
                         </dt>
                         <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                             {{ user.email|default:"Not provided" }}
-                        </dd>
-                    </div>
-                    <div class="bg-white px-6 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
-                        <dt class="text-sm font-semibold text-gray-600">
-                            First name
-                        </dt>
-                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                            {{ user.first_name|default:"Not provided" }}
+                            {% if user.email_verified %}
+                                <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    Verified
+                                </span>
+                            {% else %}
+                                <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    Not Verified
+                                </span>
+                            {% endif %}
                         </dd>
                     </div>
                     <div class="bg-gray-50/50 px-6 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
                         <dt class="text-sm font-semibold text-gray-600">
-                            Last name
+                            Phone Number
                         </dt>
                         <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                            {{ user.last_name|default:"Not provided" }}
+                            {{ user.phone_number|default:"Not provided" }}
+                        </dd>
+                    </div>
+                    <div class="bg-white px-6 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
+                        <dt class="text-sm font-semibold text-gray-600">
+                            Bio
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {{ user.bio|default:"Not provided" }}
+                        </dd>
+                    </div>
+                    <div class="bg-gray-50/50 px-6 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
+                        <dt class="text-sm font-semibold text-gray-600">
+                            Role
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                {{ user.get_user_role }}
+                            </span>
                         </dd>
                     </div>
                     <div class="bg-white px-6 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
@@ -76,9 +109,12 @@
             </div>
         </div>
 
-        <div class="mt-8 flex justify-center space-x-4">
+        <div class="mt-8 flex justify-center space-x-4 flex-wrap gap-4">
             <a href="{% url 'accounts:profile_edit' %}" class="inline-flex items-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
                 Edit Profile
+            </a>
+            <a href="{% url 'accounts:password_change' %}" class="inline-flex items-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-200">
+                Change Password
             </a>
             <a href="{% url 'home' %}" class="inline-flex items-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
                 Back to Home

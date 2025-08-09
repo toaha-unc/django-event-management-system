@@ -1,8 +1,9 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from events.models import UserProfile
+
+User = get_user_model()
 
 class UserSignUpForm(UserCreationForm):
     email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={
@@ -78,10 +79,22 @@ class ProfileEditForm(forms.ModelForm):
     email = forms.EmailField(max_length=254, required=True, widget=forms.EmailInput(attrs={
         'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
     }))
+    phone_number = forms.CharField(max_length=17, required=False, widget=forms.TextInput(attrs={
+        'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+        'placeholder': '+1234567890'
+    }))
+    bio = forms.CharField(max_length=500, required=False, widget=forms.Textarea(attrs={
+        'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+        'rows': 4,
+        'placeholder': 'Tell us about yourself...'
+    }))
+    profile_picture = forms.ImageField(required=False, widget=forms.ClearableFileInput(attrs={
+        'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+    }))
     
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'email', 'username')
+        fields = ('first_name', 'last_name', 'email', 'username', 'phone_number', 'bio', 'profile_picture')
         widgets = {
             'username': forms.TextInput(attrs={
                 'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
@@ -90,6 +103,26 @@ class ProfileEditForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         self.fields['username'].widget.attrs['readonly'] = True
         self.fields['username'].widget.attrs['class'] = 'w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500'
+
+class CustomPasswordChangeForm(PasswordChangeForm):
+    """Custom password change form with styled widgets"""
+    old_password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+            'placeholder': 'Current password'
+        })
+    )
+    new_password1 = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+            'placeholder': 'New password'
+        })
+    )
+    new_password2 = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+            'placeholder': 'Confirm new password'
+        })
+    )

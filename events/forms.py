@@ -53,23 +53,10 @@ class EventForm(forms.ModelForm):
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['phone', 'address', 'bio']
-        widgets = {
-            'phone': forms.TextInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-                'placeholder': 'Enter your phone number'
-            }),
-            'address': forms.Textarea(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-                'rows': 3,
-                'placeholder': 'Enter your address'
-            }),
-            'bio': forms.Textarea(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-                'rows': 4,
-                'placeholder': 'Tell us about yourself'
-            })
-        }
+        fields = []  
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
 class RSVPForm(forms.ModelForm):
     class Meta:

@@ -49,9 +49,9 @@ def send_activation_email(user, request):
         )
         
         
-        user.profile.email_verification_token = token
-        user.profile.email_verification_sent_at = timezone.now()
-        user.profile.save()
+        user.email_verification_token = token
+        user.email_verification_sent_at = timezone.now()
+        user.save()
         
         return True
     except Exception as e:
@@ -100,9 +100,9 @@ def send_activation_reminder_email(user, request):
         )
         
         
-        user.profile.email_verification_token = token
-        user.profile.email_verification_sent_at = timezone.now()
-        user.profile.save()
+        user.email_verification_token = token
+        user.email_verification_sent_at = timezone.now()
+        user.save()
         
         return True
     except Exception as e:

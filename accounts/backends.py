@@ -1,5 +1,7 @@
 from django.contrib.auth.backends import ModelBackend
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 class EmailActivationBackend(ModelBackend):
     """
@@ -10,8 +12,8 @@ class EmailActivationBackend(ModelBackend):
         user = super().authenticate(request, username, password, **kwargs)
         
         if user is not None:
-            if hasattr(user, 'profile'):
-                if not user.profile.email_verified:
-                    return None
+            # Check email verification directly on the CustomUser model
+            if not user.email_verified:
+                return None
             
         return user

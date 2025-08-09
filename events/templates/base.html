@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Event Management System{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="{% static 'css/input.css' %}">
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -21,13 +21,13 @@
                             <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
                                 <i class="fas fa-calendar-alt text-white text-sm"></i>
                             </div>
-                            <span class="text-xl lg:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent group-hover:from-blue-700 group-hover:to-purple-700 transition-all duration-300">EMS</span>
+                            <span class="ems-brand text-xl lg:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent group-hover:from-blue-700 group-hover:to-purple-700">EMS</span>
                         </a>
                     </div>
                     
                     <!-- Desktop Navigation -->
                     <div class="hidden lg:block ml-12">
-                        <div class="flex items-center space-x-4">
+                        <div class="flex items-center space-x-2">
                             <a href="{% url 'home' %}" class="nav-link">
                                 <i class="fas fa-home mr-2"></i>Home
                             </a>
@@ -38,12 +38,12 @@
                                 <i class="fas fa-tags mr-2"></i>Categories
                             </a>
                             {% if user.is_authenticated %}
-                                {% if user.profile.is_admin %}
+                                {% if user.is_admin %}
                                 <a href="{% url 'user_list' %}" class="nav-link">
                                     <i class="fas fa-users mr-2"></i>Users
                                 </a>
                                 {% endif %}
-                                {% if user.profile.is_admin or user.profile.is_organizer %}
+                                {% if user.is_admin or user.is_organizer %}
                                 <a href="{% url 'organizer_dashboard' %}" class="nav-link">
                                     <i class="fas fa-chart-line mr-2"></i>Dashboard
                                 </a>
@@ -62,14 +62,15 @@
                 <div class="hidden lg:block">
                     {% if user.is_authenticated %}
                         <div class="flex items-center space-x-4">
-                            <div class="flex items-center space-x-3 bg-gray-100/80 rounded-full px-4 py-2">
-                                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                                    <i class="fas fa-user text-white text-sm"></i>
-                                </div>
+                            <a href="{% url 'accounts:profile' %}" class="flex items-center space-x-3 bg-gray-100/80 hover:bg-gray-200/80 rounded-full px-4 py-2 transition-colors duration-200">
+                                {% if user.profile_picture %}
+                                    <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}" class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm">
+                                {% else %}
+                                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-user text-white text-lg"></i>
+                                    </div>
+                                {% endif %}
                                 <span class="text-gray-700 font-medium text-sm">{{ user.username }}</span>
-                            </div>
-                            <a href="{% url 'accounts:profile' %}" class="text-gray-600 hover:text-blue-600 font-medium text-sm transition-colors duration-200 flex items-center">
-                                <i class="fas fa-user-cog mr-1"></i>Profile
                             </a>
                             <a href="{% url 'accounts:logout' %}" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 hover:shadow-lg hover:scale-105 flex items-center">
                                 <i class="fas fa-sign-out-alt mr-1"></i>Logout
@@ -112,12 +113,12 @@
                     <i class="fas fa-tags mr-3"></i>Categories
                 </a>
                 {% if user.is_authenticated %}
-                    {% if user.profile.is_admin %}
+                    {% if user.is_admin %}
                     <a href="{% url 'user_list' %}" class="mobile-nav-link">
                         <i class="fas fa-users mr-3"></i>Users
                     </a>
                     {% endif %}
-                    {% if user.profile.is_admin or user.profile.is_organizer %}
+                    {% if user.is_admin or user.is_organizer %}
                     <a href="{% url 'organizer_dashboard' %}" class="mobile-nav-link">
                         <i class="fas fa-chart-line mr-3"></i>Dashboard
                     </a>
@@ -132,21 +133,22 @@
                 <!-- Mobile Authentication Links -->
                 <div class="pt-4 border-t border-gray-200/50">
                     {% if user.is_authenticated %}
-                        <div class="px-3 py-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg mb-3">
+                        <a href="{% url 'accounts:profile' %}" class="block px-3 py-3 bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 rounded-lg mb-3 transition-colors duration-200">
                             <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                                    <i class="fas fa-user text-white"></i>
-                                </div>
+                                {% if user.profile_picture %}
+                                    <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}" class="w-14 h-14 rounded-full object-cover border-2 border-white shadow-sm">
+                                {% else %}
+                                    <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-user text-white text-xl"></i>
+                                    </div>
+                                {% endif %}
                                 <div>
                                     <div class="text-base font-semibold text-gray-800">Welcome back!</div>
                                     <div class="text-sm text-gray-600">{{ user.username }}</div>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                         <div class="space-y-2">
-                            <a href="{% url 'accounts:profile' %}" class="mobile-nav-link">
-                                <i class="fas fa-user-cog mr-3"></i>Profile
-                            </a>
                             <a href="{% url 'accounts:logout' %}" class="mobile-nav-link text-red-600 hover:text-red-700 hover:bg-red-50">
                                 <i class="fas fa-sign-out-alt mr-3"></i>Logout
                             </a>

@@ -1,27 +1,29 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, logout, authenticate, get_user_model
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import PasswordChangeView, PasswordResetView, PasswordResetConfirmView
 from django.contrib import messages
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
 from django.http import HttpResponse
 from django.utils import timezone
+from django.urls import reverse_lazy
+from django.views.generic import TemplateView, UpdateView
 from datetime import timedelta
-from .forms import UserSignUpForm, UserLoginForm, ProfileEditForm
+from .forms import UserSignUpForm, UserLoginForm, ProfileEditForm, CustomPasswordChangeForm
 from .utils import send_activation_email, send_activation_reminder_email
-from events.models import UserProfile
+
+User = get_user_model()
 
 def signup_view(request):
     if request.user.is_authenticated:
-        
-        if hasattr(request.user, 'profile'):
-            if request.user.profile.is_admin() or request.user.profile.is_organizer():
-                return redirect('organizer_dashboard')
-            else:
-                return redirect('participant_dashboard')  
-        return redirect('home')
+        if request.user.is_admin() or request.user.is_organizer():
+            return redirect('organizer_dashboard')
+        else:
+            return redirect('participant_dashboard')
     
     if request.method == 'POST':
         form = UserSignUpForm(request.POST)
@@ -52,13 +54,10 @@ def signup_view(request):
 
 def login_view(request):
     if request.user.is_authenticated:
-        
-        if hasattr(request.user, 'profile'):
-            if request.user.profile.is_admin() or request.user.profile.is_organizer():
-                return redirect('organizer_dashboard')
-            else:
-                return redirect('participant_dashboard')  
-        return redirect('home')
+        if request.user.is_admin() or request.user.is_organizer():
+            return redirect('organizer_dashboard')
+        else:
+            return redirect('participant_dashboard')
     
     if request.method == 'POST':
         form = UserLoginForm(request, data=request.POST)
@@ -69,7 +68,7 @@ def login_view(request):
             
             if user is not None:
                 
-                if hasattr(user, 'profile') and not user.profile.email_verified:
+                if not user.email_verified:
                     messages.error(request, 'Please activate your account by clicking the link in the email we sent you. Check your spam folder if you don\'t see it.')
                     return render(request, 'accounts/login.html', {'form': form})
                 
@@ -82,16 +81,12 @@ def login_view(request):
                     return redirect(next_url)
                 
 
-                if hasattr(user, 'profile'):
-                    if user.profile.is_admin():
-                        return redirect('organizer_dashboard')  
-                    elif user.profile.is_organizer():
-                        return redirect('organizer_dashboard')
-                    else: 
-                        return redirect('participant_dashboard')  
-                else:
-                    
-                    return redirect('home')
+                if user.is_admin():
+                    return redirect('organizer_dashboard')  
+                elif user.is_organizer():
+                    return redirect('organizer_dashboard')
+                else: 
+                    return redirect('participant_dashboard')
             else:
                 messages.error(request, 'Invalid username or password.')
         else:
@@ -111,17 +106,12 @@ def activate_account(request, uidb64, token):
         user = None
     
     if user is not None and default_token_generator.check_token(user, token):
+        user.email_verified = True
+        user.email_verification_token = None
+        user.save()
         
-        if hasattr(user, 'profile'):
-            
-            user.profile.email_verified = True
-            user.profile.email_verification_token = None
-            user.profile.save()
-            
-            messages.success(request, 'Your account has been activated successfully! You can now log in.')
-            return redirect('accounts:login')
-        else:
-            messages.error(request, 'Account activation failed. Please contact support.')
+        messages.success(request, 'Your account has been activated successfully! You can now log in.')
+        return redirect('accounts:login')
     else:
         messages.error(request, 'The activation link is invalid or has expired.')
     
@@ -133,10 +123,10 @@ def resend_activation(request):
         email = request.POST.get('email')
         try:
             user = User.objects.get(email=email)
-            if hasattr(user, 'profile') and not user.profile.email_verified:
+            if not user.email_verified:
                 
-                if (user.profile.email_verification_sent_at is None or 
-                    timezone.now() - user.profile.email_verification_sent_at > timedelta(minutes=5)):
+                if (user.email_verification_sent_at is None or 
+                    timezone.now() - user.email_verification_sent_at > timedelta(minutes=5)):
                     
                     if send_activation_reminder_email(user, request):
                         messages.success(request, 'Activation email has been resent. Please check your email.')
@@ -164,7 +154,7 @@ def profile_view(request):
 @login_required
 def profile_edit_view(request):
     if request.method == 'POST':
-        form = ProfileEditForm(request.POST, instance=request.user)
+        form = ProfileEditForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
             form.save()
             messages.success(request, 'Profile updated successfully!')
@@ -175,3 +165,64 @@ def profile_edit_view(request):
         form = ProfileEditForm(instance=request.user)
     
     return render(request, 'accounts/profile_edit.html', {'form': form})
+
+# Class-based views for enhanced profile features
+class ProfileView(LoginRequiredMixin, TemplateView):
+    """Class-based view for displaying user profile"""
+    template_name = 'accounts/profile.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user'] = self.request.user
+        return context
+
+class ProfileEditView(LoginRequiredMixin, UpdateView):
+    """Class-based view for editing user profile"""
+    form_class = ProfileEditForm
+    template_name = 'accounts/profile_edit.html'
+    success_url = reverse_lazy('accounts:profile')
+    
+    def get_object(self):
+        return self.request.user
+    
+    def form_valid(self, form):
+        messages.success(self.request, 'Profile updated successfully!')
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        messages.error(self.request, 'Please correct the errors below.')
+        return super().form_invalid(form)
+
+class CustomPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
+    """Class-based view for changing password"""
+    form_class = CustomPasswordChangeForm
+    template_name = 'accounts/password_change.html'
+    success_url = reverse_lazy('accounts:profile')
+    
+    def form_valid(self, form):
+        messages.success(self.request, 'Your password has been changed successfully!')
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        messages.error(self.request, 'Please correct the errors below.')
+        return super().form_invalid(form)
+
+class CustomPasswordResetView(PasswordResetView):
+    """Class-based view for password reset"""
+    template_name = 'accounts/password_reset.html'
+    email_template_name = 'accounts/emails/password_reset_email.html'
+    subject_template_name = 'accounts/emails/password_reset_subject.txt'
+    success_url = reverse_lazy('accounts:password_reset_done')
+    
+    def form_valid(self, form):
+        messages.success(self.request, 'Password reset email has been sent!')
+        return super().form_valid(form)
+
+class CustomPasswordResetConfirmView(PasswordResetConfirmView):
+    """Class-based view for password reset confirmation"""
+    template_name = 'accounts/password_reset_confirm.html'
+    success_url = reverse_lazy('accounts:password_reset_complete')
+    
+    def form_valid(self, form):
+        messages.success(self.request, 'Your password has been reset successfully!')
+        return super().form_valid(form)

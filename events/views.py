@@ -1,12 +1,18 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q, Count
 from django.utils import timezone
 from django.template.loader import render_to_string
 from django.http import HttpResponse
+from django.urls import reverse_lazy
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 from functools import wraps
-from django.contrib.auth.models import User, Group
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
+
+User = get_user_model()
 
 from .models import Event, Category, UserProfile, EventRegistration, RSVP
 from .forms import EventForm, CategoryForm, RSVPForm
@@ -15,6 +21,40 @@ from accounts.decorators import (
     participant_required, any_authenticated_user
 )
 from .utils import send_rsvp_confirmation_email, send_rsvp_update_email
+
+class AdminOrOrganizerRequiredMixin:
+    """Mixin for views that require admin or organizer permissions"""
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            messages.error(request, "You must be logged in to access this page.")
+            return redirect('accounts:login')
+        
+        if not (request.user.is_admin() or request.user.is_organizer()):
+            messages.error(request, "You don't have permission to access this page.")
+            return redirect('home')
+        
+        return super().dispatch(request, *args, **kwargs)
+
+class AdminRequiredMixin:
+    """Mixin for views that require admin permissions"""
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            messages.error(request, "You must be logged in to access this page.")
+            return redirect('accounts:login')
+        
+        if not request.user.is_admin():
+            messages.error(request, "You don't have permission to access this page.")
+            return redirect('home')
+        
+        return super().dispatch(request, *args, **kwargs)
+
+class DashboardContextMixin:
+    """Mixin to handle dashboard context"""
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.session.get('from_dashboard'):
+            context['active_page'] = 'dashboard'
+        return context
 
 def render_dashboard(request, template, context):
     if request.session.get('from_dashboard'):
@@ -333,6 +373,10 @@ def rsvp_create(request, event_pk):
     event = get_object_or_404(Event, pk=event_pk)
     user = request.user
     
+    # Check if the event has already passed
+    if event.has_passed():
+        messages.error(request, 'Cannot RSVP to an event that has already passed.')
+        return redirect('event_detail', pk=event_pk)
     
     existing_rsvp = RSVP.objects.filter(user=user, event=event).first()
     
@@ -368,6 +412,11 @@ def rsvp_delete(request, event_pk):
     event = get_object_or_404(Event, pk=event_pk)
     user = request.user
     
+    # Check if the event has already passed
+    if event.has_passed():
+        messages.error(request, 'Cannot modify RSVP for an event that has already passed.')
+        return redirect('event_detail', pk=event_pk)
+    
     try:
         rsvp = RSVP.objects.get(user=user, event=event)
         if request.method == 'POST':
@@ -392,3 +441,155 @@ def unregister_from_event(request, event_pk):
     """Legacy function - redirect to RSVP deletion"""
     messages.info(request, 'Unregistration has been replaced with RSVP removal. Please use the RSVP system.')
     return redirect('rsvp_delete', event_pk=event_pk)
+
+
+
+class EventListView(DashboardContextMixin, ListView):
+    """Class-based view for listing events"""
+    model = Event
+    template_name = 'events/event_list.html'
+    context_object_name = 'events'
+    
+    def get_queryset(self):
+        events = Event.objects.select_related('category').prefetch_related('rsvp_set__user').all()
+        
+        category_id = self.request.GET.get('category')
+        if category_id:
+            events = events.filter(category_id=category_id)
+        
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')
+        if start_date and end_date:
+            events = events.filter(date__range=[start_date, end_date])
+        elif start_date:
+            events = events.filter(date__gte=start_date)
+        elif end_date:
+            events = events.filter(date__lte=end_date)
+        
+        return events
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['total_participants'] = User.objects.filter(rsvps__isnull=False).distinct().count()
+        context['categories'] = Category.objects.all()
+        context['selected_category'] = self.request.GET.get('category')
+        context['start_date'] = self.request.GET.get('start_date')
+        context['end_date'] = self.request.GET.get('end_date')
+        return context
+
+class EventDetailView(DetailView):
+    """Class-based view for event detail"""
+    model = Event
+    template_name = 'events/event_detail.html'
+    context_object_name = 'event'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        event = self.object
+        
+        user_rsvp = None
+        if self.request.user.is_authenticated:
+            user_rsvp = RSVP.objects.filter(user=self.request.user, event=event).first()
+        
+        context['user_rsvp'] = user_rsvp
+        context['rsvp_stats'] = {
+            'total_rsvps': event.get_rsvp_count(),
+        }
+        
+        return context
+
+class EventCreateView(AdminOrOrganizerRequiredMixin, DashboardContextMixin, CreateView):
+    """Class-based view for creating events"""
+    model = Event
+    form_class = EventForm
+    template_name = 'events/event_form.html'
+    success_url = reverse_lazy('event_list')
+    
+    def form_valid(self, form):
+        form.instance.created_by = self.request.user
+        messages.success(self.request, 'Event created successfully!')
+        return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Create Event'
+        return context
+
+class EventUpdateView(AdminOrOrganizerRequiredMixin, DashboardContextMixin, UpdateView):
+    """Class-based view for updating events"""
+    model = Event
+    form_class = EventForm
+    template_name = 'events/event_form.html'
+    success_url = reverse_lazy('event_list')
+    
+    def form_valid(self, form):
+        messages.success(self.request, 'Event updated successfully!')
+        return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Edit Event'
+        return context
+
+class EventDeleteView(AdminOrOrganizerRequiredMixin, DashboardContextMixin, DeleteView):
+    """Class-based view for deleting events"""
+    model = Event
+    template_name = 'events/event_confirm_delete.html'
+    success_url = reverse_lazy('event_list')
+    context_object_name = 'event'
+    
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, 'Event deleted successfully!')
+        return super().delete(request, *args, **kwargs)
+
+class CategoryListView(ListView):
+    """Class-based view for listing categories"""
+    model = Category
+    template_name = 'events/category_list.html'
+    context_object_name = 'categories'
+    
+    def get_queryset(self):
+        return Category.objects.prefetch_related('events').all()
+
+class CategoryCreateView(AdminOrOrganizerRequiredMixin, DashboardContextMixin, CreateView):
+    """Class-based view for creating categories"""
+    model = Category
+    form_class = CategoryForm
+    template_name = 'events/category_form.html'
+    success_url = reverse_lazy('category_list')
+    
+    def form_valid(self, form):
+        messages.success(self.request, 'Category created successfully!')
+        return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Create Category'
+        return context
+
+class CategoryUpdateView(AdminOrOrganizerRequiredMixin, DashboardContextMixin, UpdateView):
+    """Class-based view for updating categories"""
+    model = Category
+    form_class = CategoryForm
+    template_name = 'events/category_form.html'
+    success_url = reverse_lazy('category_list')
+    
+    def form_valid(self, form):
+        messages.success(self.request, 'Category updated successfully!')
+        return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Edit Category'
+        return context
+
+class CategoryDeleteView(AdminOrOrganizerRequiredMixin, DashboardContextMixin, DeleteView):
+    """Class-based view for deleting categories"""
+    model = Category
+    template_name = 'events/category_confirm_delete.html'
+    success_url = reverse_lazy('category_list')
+    context_object_name = 'category'
+    
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, 'Category deleted successfully!')
+        return super().delete(request, *args, **kwargs)

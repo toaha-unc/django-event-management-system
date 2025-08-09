@@ -13,15 +13,16 @@ class CategoryAdmin(admin.ModelAdmin):
     list_display = ['name', 'description']
     search_fields = ['name']
 
-@admin.register(UserProfile)
-class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ['user', 'phone', 'get_user_role']
-    search_fields = ['user__username', 'user__email']
-    list_filter = ['user__groups__name']
+# UserProfile admin is now handled in accounts/admin.py to avoid conflicts
+# @admin.register(UserProfile)
+# class UserProfileAdmin(admin.ModelAdmin):
+#     list_display = ['user', 'phone', 'get_user_role']
+#     search_fields = ['user__username', 'user__email']
+#     list_filter = ['user__groups__name']
 
-    def get_user_role(self, obj):
-        return obj.get_user_role()
-    get_user_role.short_description = 'Role'
+#     def get_user_role(self, obj):
+#         return obj.get_user_role()
+#     get_user_role.short_description = 'Role'
 
 @admin.register(EventRegistration)
 class EventRegistrationAdmin(admin.ModelAdmin):

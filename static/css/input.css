@@ -8,28 +8,26 @@
   display: inline-block;
 }
 
-.ems-brand:hover {
+.group:hover .ems-brand {
   transform: scale(1.1);
-  color: #1d4ed8; /* blue-700 */
 }
 
 /* Navigation Link Styles */
 .nav-link {
-  @apply text-gray-600 hover:text-blue-600 font-medium px-4 py-2 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:scale-105 flex items-center;
+  @apply text-gray-600 hover:text-blue-600 font-medium px-3 py-2 text-base transition-all duration-200 flex items-center;
 }
 
 .nav-link:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  transform: scale(1.05);
 }
 
 /* Mobile Navigation Link Styles */
 .mobile-nav-link {
-  @apply block px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg text-base font-medium transition-all duration-200 flex items-center;
+  @apply block px-5 py-4 text-gray-700 hover:text-blue-600 rounded-lg text-lg font-medium transition-all duration-200 flex items-center;
 }
 
 .mobile-nav-link:hover {
-  transform: translateX(4px);
+  transform: scale(1.02);
 }
 
 /* Mobile Menu Button */
@@ -125,7 +123,7 @@
 
 /* Enhanced hover effects for navigation */
 .nav-link:active {
-  transform: scale(0.98);
+  transform: none;
 }
 
 /* Gradient text animation */
@@ -161,7 +159,7 @@
   
   /* Enhanced mobile menu animations */
   .mobile-nav-link:active {
-    transform: scale(0.98);
+    transform: none;
   }
 }
 

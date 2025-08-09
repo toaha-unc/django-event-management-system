@@ -39,10 +39,15 @@
 
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
     {% for event in events %}
-    <div class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition flex flex-col overflow-hidden">
+    <div class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition flex flex-col overflow-hidden {% if event.has_passed %}opacity-75{% endif %}">
+      {% if event.has_passed %}
+        <div class="bg-red-500 text-white text-center py-2 px-4 text-sm font-medium">
+          <i class="fas fa-clock mr-2"></i>Event Passed
+        </div>
+      {% endif %}
       {% if event.image %}
         <div class="w-full h-48 sm:h-56 overflow-hidden">
-          <img src="{{ event.image.url }}" alt="{{ event.name }}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+          <img src="{{ event.image.url }}" alt="{{ event.name }}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300 {% if event.has_passed %}grayscale{% endif %}">
         </div>
       {% endif %}
       <div class="p-4 sm:p-6 flex-1 flex flex-col">

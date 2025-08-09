@@ -1,7 +1,9 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.utils import timezone
+
+User = get_user_model()
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -40,20 +42,30 @@ class Event(models.Model):
         """Get the number of attending RSVPs for this event"""
         return self.rsvp_set.count()
     
+    def has_passed(self):
+        """Check if the event date and time has passed"""
+        from django.utils import timezone
+        import datetime
+        
+        # Combine date and time to create a datetime object
+        event_datetime = datetime.datetime.combine(self.date, self.time)
+        # Make it timezone aware
+        event_datetime = timezone.make_aware(event_datetime)
+        
+        return timezone.now() > event_datetime
+    
+    def can_rsvp(self):
+        """Check if users can still RSVP to this event"""
+        return not self.has_passed()
+    
     def get_absolute_url(self):
         """Get the absolute URL for this event"""
         from django.urls import reverse
         return reverse('event_detail', kwargs={'pk': self.pk})
 
 class UserProfile(models.Model):
+    """Legacy UserProfile model for backward compatibility"""
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    phone = models.CharField(max_length=15, blank=True, null=True)
-    address = models.TextField(blank=True, null=True)
-    bio = models.TextField(blank=True, null=True)
-    
-    email_verified = models.BooleanField(default=False)
-    email_verification_token = models.CharField(max_length=100, blank=True, null=True)
-    email_verification_sent_at = models.DateTimeField(blank=True, null=True)
     
     class Meta:
         verbose_name = 'User Profile'
@@ -64,19 +76,40 @@ class UserProfile(models.Model):
     
     def get_user_role(self):
         """Get the primary role of the user"""
-        groups = self.user.groups.all()
-        if groups.exists():
-            return groups.first().name
-        return "No Role"
+        return self.user.get_user_role()
     
     def is_admin(self):
-        return self.user.groups.filter(name='Admin').exists()
+        return self.user.is_admin()
     
     def is_organizer(self):
-        return self.user.groups.filter(name='Organizer').exists()
+        return self.user.is_organizer()
     
     def is_participant(self):
-        return self.user.groups.filter(name='Participant').exists()
+        return self.user.is_participant()
+    
+    @property
+    def phone(self):
+        return self.user.phone_number
+    
+    @property
+    def address(self):
+        return self.user.address
+    
+    @property
+    def bio(self):
+        return self.user.bio
+    
+    @property
+    def email_verified(self):
+        return self.user.email_verified
+    
+    @property
+    def email_verification_token(self):
+        return self.user.email_verification_token
+    
+    @property
+    def email_verification_sent_at(self):
+        return self.user.email_verification_sent_at
 
 class RSVP(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rsvps')
