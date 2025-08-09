@@ -33,11 +33,11 @@ class UserProfileAdmin(admin.ModelAdmin):
     search_fields = ['user__username', 'user__email']
     
     def get_phone(self, obj):
-        return obj.user.phone_number  # Access through the actual CustomUser field
+        return obj.user.phone_number  
     get_phone.short_description = 'Phone Number'
     
     def get_email_verified(self, obj):
-        return obj.user.email_verified  # Access through the actual CustomUser field
+        return obj.user.email_verified  
     get_email_verified.short_description = 'Email Verified'
     get_email_verified.boolean = True
     
@@ -45,6 +45,10 @@ class UserProfileAdmin(admin.ModelAdmin):
         return obj.get_user_role()
     get_user_role.short_description = 'Role'
 
-# Register the models
+try:
+    admin.site.unregister(User)
+except admin.sites.NotRegistered:
+    pass
+
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(UserProfile, UserProfileAdmin)
