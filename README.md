@@ -36,7 +36,7 @@ A comprehensive web application for managing events, user registration, and RSVP
 ### Additional Features
 - **Responsive Design** with Tailwind CSS
 - **Media File Management** for event images and user profiles
-- **Timezone Support** (Asia/Dhaka)
+- **Timezone Support**
 - **Email Integration** for notifications
 - **Admin Interface** for system management
 
@@ -44,7 +44,7 @@ A comprehensive web application for managing events, user registration, and RSVP
 
 - **Backend**: Django 5.2, Python
 - **Frontend**: HTML, Tailwind CSS, JavaScript
-- **Database**: PostgreSQL (production), SQLite (development)
+- **Database**: PostgreSQL (production),
 - **Email**: SMTP integration
 - **Media Storage**: Local file system
 - **Deployment**: Render.com
